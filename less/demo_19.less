@@ -1,0 +1,16 @@
+//代码出现膨胀
+div {
+	background-color: #e0e0e0;
+}
+
+p:extend(div){
+	color: #101010;
+}
+//代码没有膨胀
+.parent {
+	font-size: 12pt;
+}
+
+.child {
+	&:extend(.parent);
+}

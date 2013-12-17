@@ -1,0 +1,23 @@
+.mixin (...){
+	border-bottom: @rest;
+}
+
+.mixin(){
+	border-bottom: @rest;
+}
+
+.mixin(@a: 1){
+	border-bottom: @rest;
+}
+
+.mixin(@a: 1; ...){
+	border-bottom: @rest;
+}
+
+.mixin(@a; ...){
+	border-bottom: @rest;
+}
+
+h1 {
+	.mixin(1 , 2)
+}

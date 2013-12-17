@@ -1,0 +1,13 @@
+.mixin() { 
+  @global: in-mixin;
+  @local: in-mixin; 
+  @definedOnlyInMixin: in-mixin; 
+}
+
+.class {
+  @local: localy-defined-value; //local variable - protected
+  margin: @global @local @definedOnlyInMixin;
+  .mixin(); 
+}
+
+@global: outer-scope; // non-local variable - rewritten

@@ -1,0 +1,12 @@
+{"cmd": ["coffee", "-wc", "-o", "./", "$file_path" ],
+"selector" : "source.coffee",
+"path" : "/usr/bin",
+ "working_dir" : "$project_path",
+ "variants":
+	[
+		{
+			"name": "Run",
+			"cmd": ["coffee", "$file"]
+		}
+	]
+}

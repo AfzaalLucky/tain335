@@ -1,0 +1,15 @@
+.a.b.test,.test.c {
+	color: orange;
+}
+
+.test {
+	&:hover {
+		color:green;
+	}
+}
+
+.replacement :extend(.test){
+
+}
+
+.replacement2 :extend(.test all){}
