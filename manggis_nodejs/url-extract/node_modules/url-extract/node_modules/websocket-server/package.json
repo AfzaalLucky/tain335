@@ -1,0 +1,38 @@
+{
+  "version": "1.4.4",
+  "description": "A WebSocket Server for node.js, 90-100% spec compatible.",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/miksago/node-websocket-server.git"
+  },
+  "directories": {
+    "doc": "./doc",
+    "lib": "./lib/ws"
+  },
+  "main": "./lib/ws/server",
+  "bugs": {
+    "url": "http://github.com/miksago/node-websocket-server/issues"
+  },
+  "author": {
+    "name": "Micheil Smith",
+    "email": "micheil@brandedcode.com"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "./LICENSE.md"
+    }
+  ],
+  "name": "websocket-server",
+  "engines": {
+    "node": ">=0.2.0-0"
+  },
+  "readme": "# node-websocket-server #\n\nThis is a server for drafts [75](http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-75) and [76](http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76) of the WebSocket Protocol.\n\n## Getting help:\n\nIf you have an issues with this server, please check the [issue tracker](http://github.com/miksago/node-websocket-server/issues).\n\n- If you have an issue with a stacktrace / bug report, please submit an issue in the issue tracker, make sure to include details as to how to reproduce the issue.\n- If you have a feature request, create an issue on the bug tracker and specifically state that it is a feature request, also send an email to the mailing list referencing this feature request, discussion on feature requests should be done in the issue tracker.\n- If you need general help or want to share what you're using this project in, join & email the mailing list.\n\n\n## Mailing List:\n\nWe have a mailing list, it is hosted on google groups: [http://groups.google.com/group/node-websocket-server](http://groups.google.com/group/node-websocket-server)\n\n## Documentation (outdated)\n\nSee http://static.brandedcode.com/nws-docs/ for some slightly outdated\ndocumentation.",
+  "readmeFilename": "README.md",
+  "_id": "websocket-server@1.4.4",
+  "dist": {
+    "shasum": "a7b68c16d0ad5f012b53cfaa84697da8e2f7b766"
+  },
+  "_resolved": "git+https://github.com/miniflycn/node-websocket-server.git#cef79c6cf60149da3c68948970a922d5a5210e6a",
+  "_from": "websocket-server@git+https://github.com/miniflycn/node-websocket-server.git"
+}

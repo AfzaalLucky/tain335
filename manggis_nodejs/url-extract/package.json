@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "test": "mocha",
+    "blanket": {
+      "pattern": "manggis_nodejs/url-extract/lib"
+    }
+  }
+}

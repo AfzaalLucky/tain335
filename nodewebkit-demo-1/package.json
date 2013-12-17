@@ -1,0 +1,31 @@
+{
+  "name": "mercury",
+  "description": "mercury player",
+  "version": "0.1.0",
+  "homepage": "https://github.com/root/nodewebkit-demo",
+  "author": {
+    "name": "tain335",
+    "email": "649397393@qq.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/root/nodewebkit-demo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/root/nodewebkit-demo/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/root/nodewebkit-demo/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "index.html",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-watch": "~0.2.0"
+  },
+  "keywords": []
+}

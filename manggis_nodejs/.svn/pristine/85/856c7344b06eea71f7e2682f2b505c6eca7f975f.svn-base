@@ -1,0 +1,53 @@
+{
+  "name": "url-extract",
+  "version": "0.1.7",
+  "description": "Snapshot & extract url library",
+  "keywords": [
+    "snapshot",
+    "screenshot",
+    "extract",
+    "url",
+    "library",
+    "phantomjs"
+  ],
+  "homepage": "http://miniflycn.github.io/url-extract",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/miniflycn/url-extract.git"
+  },
+  "author": {
+    "name": "Daniel Yang",
+    "email": "miniflycn@gmail.com"
+  },
+  "main": "index",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "uid2": "0.0.3",
+    "websocket-server": "git+https://github.com/miniflycn/node-websocket-server.git"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "connect": "*",
+    "blanket": "*",
+    "coveralls": "*",
+    "mocha-lcov-reporter": "*"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "readme": "[![build status](https://secure.travis-ci.org/miniflycn/url-extract.png)](http://travis-ci.org/miniflycn/url-extract)\r\n[![Coverage Status](https://coveralls.io/repos/miniflycn/url-extract/badge.png?branch=master)](https://coveralls.io/r/miniflycn/url-extract?branch=master)\r\n# url-extract\r\n[![NPM](https://nodei.co/npm/url-extract.png)](https://npmjs.org/package/url-extract)\r\n\r\nHomepage(主页): http://miniflycn.github.io/url-extract\r\n\r\n## License\r\n(The MIT License)\r\n\r\nCopyright (c) 2013 Daniel Yang <miniflycn@justany.net>\r\n\r\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\r\n\r\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\r\n\r\nTHE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/miniflycn/url-extract/issues"
+  },
+  "_id": "url-extract@0.1.7",
+  "dist": {
+    "shasum": "524ad9481581255a5be24d7519d75b186596008e"
+  },
+  "_from": "url-extract@",
+  "_resolved": "https://registry.npmjs.org/url-extract/-/url-extract-0.1.7.tgz"
+}

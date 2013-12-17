@@ -1,0 +1,228 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'generator-nodeapp' ]
+2 info using npm@1.3.14
+3 info using node@v0.10.22
+4 verbose node symlink /usr/bin/node
+5 verbose cache add [ 'generator-nodeapp', null ]
+6 verbose cache add name=undefined spec="generator-nodeapp" args=["generator-nodeapp",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: 'generator-nodeapp',
+7 verbose parsed url   path: 'generator-nodeapp',
+7 verbose parsed url   href: 'generator-nodeapp' }
+8 silly lockFile 1afc4cd4-generator-nodeapp generator-nodeapp
+9 verbose lock generator-nodeapp /home/paul/.npm/1afc4cd4-generator-nodeapp.lock
+10 silly lockFile 1afc4cd4-generator-nodeapp generator-nodeapp
+11 silly lockFile 1afc4cd4-generator-nodeapp generator-nodeapp
+12 verbose addNamed [ 'generator-nodeapp', '' ]
+13 verbose addNamed [ null, '*' ]
+14 silly lockFile 720c1c5e-generator-nodeapp generator-nodeapp@
+15 verbose lock generator-nodeapp@ /home/paul/.npm/720c1c5e-generator-nodeapp.lock
+16 silly addNameRange { name: 'generator-nodeapp', range: '*', hasData: false }
+17 verbose url raw generator-nodeapp
+18 verbose url resolving [ 'https://registry.npmjs.org/', './generator-nodeapp' ]
+19 verbose url resolved https://registry.npmjs.org/generator-nodeapp
+20 info trying registry request attempt 1 at 12:10:23
+21 http GET https://registry.npmjs.org/generator-nodeapp
+22 http 200 https://registry.npmjs.org/generator-nodeapp
+23 silly registry.get cb [ 200,
+23 silly registry.get   { vary: 'Accept',
+23 silly registry.get     server: 'CouchDB/1.3.1 (Erlang OTP/R15B03)',
+23 silly registry.get     etag: '"7K096F4FJ0L85RHWY5SRGNCLP"',
+23 silly registry.get     date: 'Fri, 06 Dec 2013 04:10:25 GMT',
+23 silly registry.get     'content-type': 'application/json',
+23 silly registry.get     'content-length': '2997' } ]
+24 silly addNameRange number 2 { name: 'generator-nodeapp', range: '*', hasData: true }
+25 silly addNameRange versions [ 'generator-nodeapp', [ '0.0.1' ] ]
+26 verbose addNamed [ 'generator-nodeapp', '0.0.1' ]
+27 verbose addNamed [ '0.0.1', '0.0.1' ]
+28 silly lockFile 5b908b7f-generator-nodeapp-0-0-1 generator-nodeapp@0.0.1
+29 verbose lock generator-nodeapp@0.0.1 /home/paul/.npm/5b908b7f-generator-nodeapp-0-0-1.lock
+30 silly lockFile b3b93fc9-eapp-generator-nodeapp-0-0-1-tgz https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz
+31 verbose lock https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz /home/paul/.npm/b3b93fc9-eapp-generator-nodeapp-0-0-1-tgz.lock
+32 verbose addRemoteTarball [ 'https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz',
+32 verbose addRemoteTarball   '2c52080c1946d8fde382eb78d708a68feb4c778c' ]
+33 info retry fetch attempt 1 at 12:10:25
+34 verbose fetch to= /home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/tmp.tgz
+35 http GET https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz
+36 http 200 https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz
+37 verbose tar unpack /home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/tmp.tgz
+38 silly lockFile 707f57a6-025747-0-627715615555644-package tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+39 verbose lock tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package /home/paul/.npm/707f57a6-025747-0-627715615555644-package.lock
+40 silly lockFile cdfb9221-025747-0-627715615555644-tmp-tgz tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/tmp.tgz
+41 verbose lock tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/tmp.tgz /home/paul/.npm/cdfb9221-025747-0-627715615555644-tmp-tgz.lock
+42 silly gunzTarPerm modes [ '755', '644' ]
+43 silly gunzTarPerm extractEntry package.json
+44 silly gunzTarPerm extractEntry .npmignore
+45 silly gunzTarPerm extractEntry README.md
+46 silly gunzTarPerm extractEntry LICENSE
+47 silly gunzTarPerm extractEntry .editorconfig
+48 silly gunzTarPerm extractEntry .gitattributes
+49 silly gunzTarPerm extractEntry .jshintrc
+50 silly gunzTarPerm extractEntry .travis.yml
+51 silly gunzTarPerm extractEntry app/index.js
+52 silly gunzTarPerm extractEntry app/templates/README.md
+53 silly gunzTarPerm extractEntry app/templates/LICENSE
+54 silly gunzTarPerm extractEntry app/templates/_Gruntfile.js
+55 silly gunzTarPerm extractEntry app/templates/index.js
+56 silly gunzTarPerm extractEntry app/templates/_editorconfig
+57 silly gunzTarPerm extractEntry app/templates/_package.json
+58 silly gunzTarPerm extractEntry app/templates/_travis.yml
+59 silly gunzTarPerm extractEntry app/templates/gitignore
+60 silly gunzTarPerm extractEntry app/templates/jshintrc
+61 silly gunzTarPerm extractEntry test/test-creation.js
+62 silly gunzTarPerm extractEntry test/test-load.js
+63 silly gunzTarPerm extractEntry test/temp/package.json
+64 silly gunzTarPerm extractEntry test/temp/.npmignore
+65 silly gunzTarPerm extractEntry test/temp/README.md
+66 silly gunzTarPerm extractEntry test/temp/LICENSE
+67 silly gunzTarPerm extractEntry test/temp/Gruntfile.js
+68 silly gunzTarPerm extractEntry test/temp/.editorconfig
+69 silly gunzTarPerm extractEntry test/temp/.jshintrc
+70 silly gunzTarPerm extractEntry test/temp/.travis.yml
+71 silly gunzTarPerm extractEntry test/temp/server/index.js
+72 silly lockFile 707f57a6-025747-0-627715615555644-package tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+73 silly lockFile 707f57a6-025747-0-627715615555644-package tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+74 silly lockFile cdfb9221-025747-0-627715615555644-tmp-tgz tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/tmp.tgz
+75 silly lockFile cdfb9221-025747-0-627715615555644-tmp-tgz tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/tmp.tgz
+76 verbose tar pack [ '/home/paul/.npm/generator-nodeapp/0.0.1/package.tgz',
+76 verbose tar pack   '/home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package' ]
+77 verbose tarball /home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+78 verbose folder /home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+79 silly lockFile 707f57a6-025747-0-627715615555644-package tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+80 verbose lock tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package /home/paul/.npm/707f57a6-025747-0-627715615555644-package.lock
+81 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+82 verbose lock tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz /home/paul/.npm/dce378d9-erator-nodeapp-0-0-1-package-tgz.lock
+83 silly lockFile 707f57a6-025747-0-627715615555644-package tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+84 silly lockFile 707f57a6-025747-0-627715615555644-package tar:///home/paul/tmp/npm-29775-u9Pdqveh/1386303025747-0.627715615555644/package
+85 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+86 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+87 silly lockFile 49039e78--generator-nodeapp-0-0-1-package /home/paul/.npm/generator-nodeapp/0.0.1/package
+88 verbose lock /home/paul/.npm/generator-nodeapp/0.0.1/package /home/paul/.npm/49039e78--generator-nodeapp-0-0-1-package.lock
+89 silly lockFile 49039e78--generator-nodeapp-0-0-1-package /home/paul/.npm/generator-nodeapp/0.0.1/package
+90 silly lockFile 49039e78--generator-nodeapp-0-0-1-package /home/paul/.npm/generator-nodeapp/0.0.1/package
+91 verbose tar unpack /home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+92 silly lockFile 4d0b0579--generator-nodeapp-0-0-1-package tar:///home/paul/.npm/generator-nodeapp/0.0.1/package
+93 verbose lock tar:///home/paul/.npm/generator-nodeapp/0.0.1/package /home/paul/.npm/4d0b0579--generator-nodeapp-0-0-1-package.lock
+94 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+95 verbose lock tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz /home/paul/.npm/dce378d9-erator-nodeapp-0-0-1-package-tgz.lock
+96 silly gunzTarPerm modes [ '755', '644' ]
+97 silly gunzTarPerm extractEntry package.json
+98 silly gunzTarPerm extractEntry .npmignore
+99 silly gunzTarPerm extractEntry README.md
+100 silly gunzTarPerm extractEntry LICENSE
+101 silly gunzTarPerm extractEntry .editorconfig
+102 silly gunzTarPerm extractEntry .gitattributes
+103 silly gunzTarPerm extractEntry .jshintrc
+104 silly gunzTarPerm extractEntry .travis.yml
+105 silly gunzTarPerm extractEntry app/index.js
+106 silly gunzTarPerm extractEntry app/templates/README.md
+107 silly gunzTarPerm extractEntry app/templates/LICENSE
+108 silly gunzTarPerm extractEntry app/templates/_Gruntfile.js
+109 silly gunzTarPerm extractEntry app/templates/index.js
+110 silly gunzTarPerm extractEntry app/templates/_editorconfig
+111 silly gunzTarPerm extractEntry app/templates/_package.json
+112 silly gunzTarPerm extractEntry app/templates/_travis.yml
+113 silly gunzTarPerm extractEntry app/templates/gitignore
+114 silly gunzTarPerm extractEntry app/templates/jshintrc
+115 silly gunzTarPerm extractEntry test/test-creation.js
+116 silly gunzTarPerm extractEntry test/test-load.js
+117 silly gunzTarPerm extractEntry test/temp/package.json
+118 silly gunzTarPerm extractEntry test/temp/.npmignore
+119 silly gunzTarPerm extractEntry test/temp/README.md
+120 silly gunzTarPerm extractEntry test/temp/LICENSE
+121 silly gunzTarPerm extractEntry test/temp/Gruntfile.js
+122 silly gunzTarPerm extractEntry test/temp/.editorconfig
+123 silly gunzTarPerm extractEntry test/temp/.jshintrc
+124 silly gunzTarPerm extractEntry test/temp/.travis.yml
+125 silly gunzTarPerm extractEntry test/temp/server/index.js
+126 silly lockFile 4d0b0579--generator-nodeapp-0-0-1-package tar:///home/paul/.npm/generator-nodeapp/0.0.1/package
+127 silly lockFile 4d0b0579--generator-nodeapp-0-0-1-package tar:///home/paul/.npm/generator-nodeapp/0.0.1/package
+128 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+129 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+130 verbose chmod /home/paul/.npm/generator-nodeapp/0.0.1/package.tgz 644
+131 verbose chown /home/paul/.npm/generator-nodeapp/0.0.1/package.tgz [ 1000, 1000 ]
+132 silly lockFile b3b93fc9-eapp-generator-nodeapp-0-0-1-tgz https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz
+133 silly lockFile b3b93fc9-eapp-generator-nodeapp-0-0-1-tgz https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz
+134 silly lockFile 5b908b7f-generator-nodeapp-0-0-1 generator-nodeapp@0.0.1
+135 silly lockFile 5b908b7f-generator-nodeapp-0-0-1 generator-nodeapp@0.0.1
+136 silly lockFile 720c1c5e-generator-nodeapp generator-nodeapp@
+137 silly lockFile 720c1c5e-generator-nodeapp generator-nodeapp@
+138 silly resolved [ { name: 'generator-nodeapp',
+138 silly resolved     version: '0.0.1',
+138 silly resolved     description: 'A Yeoman generator for Develop Node.js Applications',
+138 silly resolved     keywords: [ 'yeoman-generator', 'nodejs' ],
+138 silly resolved     homepage: 'https://github.com/carlosypunto/generator-nodeapp',
+138 silly resolved     bugs: { url: 'https://github.com/carlosypunto/generator-nodeapp/issues' },
+138 silly resolved     author:
+138 silly resolved      { name: 'Carlos García',
+138 silly resolved        email: 'carlosypunto@gmail.com',
+138 silly resolved        url: 'https://github.com/carlosypunto' },
+138 silly resolved     main: 'app/index.js',
+138 silly resolved     repository:
+138 silly resolved      { type: 'git',
+138 silly resolved        url: 'git://github.com/carlosypunto/generator-nodeapp.git' },
+138 silly resolved     scripts: { test: 'mocha' },
+138 silly resolved     dependencies:
+138 silly resolved      { 'yeoman-generator': '~0.13.0',
+138 silly resolved        github: '~0.1.12',
+138 silly resolved        'git-config': '0.0.3' },
+138 silly resolved     devDependencies: { mocha: '~1.12.0' },
+138 silly resolved     peerDependencies: { yo: '>=1.0.0' },
+138 silly resolved     engines: { node: '>=0.8.0', npm: '>=1.2.10' },
+138 silly resolved     licenses: [ [Object] ],
+138 silly resolved     readme: '# generator-nodeapp [![Build Status](https://secure.travis-ci.org/carlosypunto/generator-nodeapp.png?branch=master)](https://travis-ci.org/carlosypunto/generator-nodeapp)\n\nA [Yeoman](http://yeoman.io) generator for Develop Node.js Applications.\n\n\n## Getting Started\n\n### Usage\n\nTo install generator-nodeapp from npm, run:\n\n```\n$ npm install -g generator-nodeapp\n```\n\nFinally, initiate the generator:\n\n```\n$ yo nodeapp\n```\n\n\n## License\n\n[MIT License](http://en.wikipedia.org/wiki/MIT_License)\n',
+138 silly resolved     readmeFilename: 'README.md',
+138 silly resolved     _id: 'generator-nodeapp@0.0.1',
+138 silly resolved     dist: { shasum: '2a38532846f581e041d51c2701404ef5383c8062' },
+138 silly resolved     _from: 'generator-nodeapp@',
+138 silly resolved     _resolved: 'https://registry.npmjs.org/generator-nodeapp/-/generator-nodeapp-0.0.1.tgz' } ]
+139 info install generator-nodeapp@0.0.1 into /usr/lib
+140 info installOne generator-nodeapp@0.0.1
+141 info /usr/lib/node_modules/generator-nodeapp unbuild
+142 verbose tar unpack /home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+143 silly lockFile c9a5f322-b-node-modules-generator-nodeapp tar:///usr/lib/node_modules/generator-nodeapp
+144 verbose lock tar:///usr/lib/node_modules/generator-nodeapp /home/paul/.npm/c9a5f322-b-node-modules-generator-nodeapp.lock
+145 silly lockFile dce378d9-erator-nodeapp-0-0-1-package-tgz tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz
+146 verbose lock tar:///home/paul/.npm/generator-nodeapp/0.0.1/package.tgz /home/paul/.npm/dce378d9-erator-nodeapp-0-0-1-package-tgz.lock
+147 silly gunzTarPerm modes [ '755', '644' ]
+148 error Error: EACCES, mkdir '/usr/lib/node_modules/generator-nodeapp'
+148 error  { [Error: EACCES, mkdir '/usr/lib/node_modules/generator-nodeapp']
+148 error   errno: 3,
+148 error   code: 'EACCES',
+148 error   path: '/usr/lib/node_modules/generator-nodeapp',
+148 error   fstream_type: 'Directory',
+148 error   fstream_path: '/usr/lib/node_modules/generator-nodeapp',
+148 error   fstream_class: 'DirWriter',
+148 error   fstream_stack:
+148 error    [ '/usr/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23',
+148 error      '/usr/lib/node_modules/npm/node_modules/mkdirp/index.js:37:53',
+148 error      'Object.oncomplete (fs.js:107:15)' ] }
+149 error Please try running this command again as root/Administrator.
+150 error System Linux 3.8.0-34-generic
+151 error command "/usr/bin/node" "/usr/bin/npm" "install" "-g" "generator-nodeapp"
+152 error cwd /home/paul/Project/nodejs-yo/webapp-0
+153 error node -v v0.10.22
+154 error npm -v 1.3.14
+155 error path /usr/lib/node_modules/generator-nodeapp
+156 error fstream_path /usr/lib/node_modules/generator-nodeapp
+157 error fstream_type Directory
+158 error fstream_class DirWriter
+159 error code EACCES
+160 error errno 3
+161 error stack Error: EACCES, mkdir '/usr/lib/node_modules/generator-nodeapp'
+162 error fstream_stack /usr/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23
+162 error fstream_stack /usr/lib/node_modules/npm/node_modules/mkdirp/index.js:37:53
+162 error fstream_stack Object.oncomplete (fs.js:107:15)
+163 verbose exit [ 3, true ]
