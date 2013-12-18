@@ -1,0 +1,11 @@
+[	
+	{"caption" : "-"},
+	{
+		"caption":"Loopy",
+		"children":
+		[
+			{"caption": "search" , "command" : "loopy"}
+		]
+	},
+	{"caption" : "-"}
+]

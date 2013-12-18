@@ -1,0 +1,152 @@
+Release 0.2.1
+
+11 May 2004
+
+Minor bugfixes, added tests.
+
+Release 0.2.0
+-------------
+
+20 Feb 2004
+
+Reorganized code into modules; converted some iteration constructs to
+Python iterators and generators. All text processing internally is now
+handled as Unicode. Analyzers are back as generators of tokens.
+
+The changes to the code to make it more pythonic appear to have
+resulted in trading time for space: preliminary tests indicate about a
+5% speedup on one dataset in exchange for a 20% increase in memory
+usage.
+
+Release 0.1.6
+-------------
+
+23 Nov 2003
+
+- Replaced analysis framework with a regex based tokenizer.
+- Cache the hash for a Term.
+
+**API Changes**:
+  Creating an IndexWriter no longer takes an analyzer argument
+
+Release 0.1.5.5
+---------------
+
+17 Nov 2003
+
+- Changed default mergeFactor from 9 to 20 for better performance
+- Fixed the example in simple.py to use a Keyword for filename, instead of
+  stored, instead of a tokenized and stored Text field. 
+- Tidied up SegmentInfos and FieldInfos to be more Pythonic.
+- Called close() on open searcher in indexer.Index.index()
+
+Release 0.1.5.4
+---------------
+
+31 Aug 2003
+
+Fixed windows-only bug in IndexWriter: was catching IOError instead of
+OSError. This gets triggered when windows refuses to let Lupy delete a
+file because windows is using it (eg indexing service). Lupy keeps track
+of these files and deletes them when it can.
+
+**API Changes**:
+  Added setMergeFactor to Index to allow for tuning.
+
+Release 0.1.5.3
+---------------
+
+17 Aug 2003
+
+- The indexer wrapper now analyzes search queries using the same
+  analyzer as the index writer. This yields more accurate search
+  results.
+- Some cleanup to get rid of deprecation warnings issued by Python 2.3
+- API cleanups (move to more Pythonic constructs):
+  
+  + lupy.document.field -- moved Text etc. from class methods of Field
+    to module level. Moved the incomplete DateFiled into the module.
+  + lupy.document.document -- Document.field() returns pythonic iterator,
+    internal storage is now dictionary. Multiple fields with same name
+    are no longer supported.
+  + lupy.document.documentfieldlist,documentfieldenumeration,datefield removed.
+
+Release 0.1.5.2
+---------------
+
+10 Jun 2003
+
+- Fixed bug in BooleanQuery (thanks to Paul Jimenez for reporting this)
+- Flush the index to disk before doing searches in indexer.Index wrapper.
+- Converted .py to unix line endings.
+- Moved from alpha to beta.
+- Tweaked the __repr__ method of Document and Field.
+- No longer intern field names since intern is not Unicode happy.
+
+Release 0.1.5.1a
+----------------
+
+29 Apr 2003
+
+- Call close() less frequently in lupy.indexer.Indexer. Useful speedup.
+- lupy.indexer.Indexer.optimize() now calls setupIndexer(). Tidier code.
+- analysis.splitter is a new tokenizer based on David Metz's article
+  in IBM Developerworks. It is faster, but it is *NOT UNICODE*.
+
+Release 0.1.5a
+--------------
+
+25 Apr 2003
+
+- Fixed deletion bug in SegmentReader.doDelete()
+- Fixed index creation issues in indexer.Index
+- Added deletion to Index wrapper
+- Added "field search" to Index wrapper: findInField
+- Index.find() now searches across all fields
+- Guard against probs with attemp to search an empty index
+
+Release 0.1.4a
+--------------
+
+24 Apr 2003
+
+- Fixed Unicode related bug in LowerCaseTokenizer.
+- Added lupy.indexer.Index() as a wrapper for indexing and search.
+  It is a lot easier to get started with Lupy using the wrapper.
+- Added __str__ method to Hits.
+- Added __getitem__ method to Hits enabling indexed access and loops.
+- Added example of using the new Index wrapper.
+- Added example of indexing email.
+- Tweaked Unicode changes in IndexReader
+
+Release 0.1.3a
+--------------
+
+15 Apr 2003
+
+- Incorporated Martin Eliasson's great Unicode changes.
+
+Release 0.1.2a
+--------------
+
+23 Feb 2003
+
+- Replaced lupy.document.field TextWithString() and TextWithReader()
+  class methods with simple Text() which is more like Lucene's API.
+  The new method uses isinstance() to do some typed dispatch.
+
+Release 0.1.1a
+--------------
+
+23 Feb 2003
+
+- Tidied up examples and install.
+
+Release 0.1
+-----------
+
+22 Feb 2003
+
+- Initial release.
+
+
