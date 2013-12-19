@@ -1,0 +1,15 @@
+
+js/page1/main.js
+----------------
+js/common/a.js
+js/common/b.js
+js/common/d.js
+js/common/c.js
+js/page1/main.js
+
+js/page2/main.js
+----------------
+js/common/a.js
+js/common/d.js
+js/common/c.js
+js/page2/main.js

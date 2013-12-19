@@ -1,0 +1,1 @@
+({appDir:"./",baseUrl:"js",dir:"../require_demo-built",paths:{jquery:"empty:",a:"common/a",b:"common/b",c:"common/c",d:"common/d"},modules:[{name:"page1/main"},{name:"page2/main"}],removeCombined:!0,findNestedDependencies:!0});
