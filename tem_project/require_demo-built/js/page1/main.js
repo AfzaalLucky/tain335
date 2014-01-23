@@ -1,1 +1,1 @@
-define("a",[],function(){var e="a"}),difine(function(){var e="b"}),define("b",function(){}),define("d",["require"],function(e){var t="d"}),define("c",["require","d"],function(e){var t="c",n=e("d")}),require(["a","b","c"],function(e,t,n){}),define("page1/main",function(){});
+difine("b",["a","c"],function(){var e="b"}),define("b",function(){}),define("d",["require"],function(e){var t="d"}),define("c",["require","d"],function(e){var t="c",n=e("d")}),require(["b","c"],function(e,t){}),define("page1/main",function(){});

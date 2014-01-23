@@ -121,6 +121,27 @@
 	buildHuffTree([new Node(null,12), new Node(null,6), new Node(null,56), new Node(null,45), new Node(null,23), new Node(null,24)]);
 
 	function preOrderSeq(arr){
-		
+		if(!arr.length){
+			return;
+		}
+		var str = [];
+		var stack = [];
+		var i = 1;
+		str.push(arr[i]);
+		i *= 2;
+		while(str.length != arr.length -1){	
+			console.log(stack);
+			if(arr[i]){
+				stack.unshift(i + 1);
+			}else{
+			    i = stack.shift();
+			}
+			str.push(arr[i]);
+			i *= 2;
+		}
+		return str;
 	}
+
+	var str = preOrderSeq([null,'A','B','E', 'C','D','F','G']);
+	console.log(str);
 })()

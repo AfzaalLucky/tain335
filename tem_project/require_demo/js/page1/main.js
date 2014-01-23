@@ -1,3 +1,3 @@
 
-require(["a", "b", "c"], function (one, two, three) {
+require(["b", "c"], function (two, three) {
 });
