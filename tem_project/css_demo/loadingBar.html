@@ -127,6 +127,56 @@
 				0% {-webkit-transform: rotate(0deg);}
 				100% {-webkit-transform: rotate(360deg);}
 			}
+
+			.facebook {
+				margin: 30px auto;
+				width: 100px;
+				height: 100px;
+			}
+
+			.facebook div {
+				float: left;
+				margin-left: 10px;
+				width: 20px;
+				height: 80px;
+				display:inline-block;
+				background-color: #56bbdb;
+				border:1px solid #217c99;
+				/*-webkit-animation 不会继承到子元素 必须直接指定目标元素 才能令delay起到作用*/
+				-webkit-animation: facebookloading 1.5s linear infinite;
+			}
+
+			.facebook div:nth-child(1) {
+				-webkit-animation-delay: 0.1s;
+			}
+
+			.facebook div:nth-child(2) {
+				-webkit-animation-delay: 0.3s;
+			}
+
+			.facebook div:nth-child(3) {
+				-webkit-animation-delay: 0.5s;
+			}
+
+			@-webkit-keyframes facebookloading {
+				0% {opacity: 1;-webkit-transform: scale(1);}
+				100% {opacity: 0.4;-webkit-transform: scale(0.6);}
+			}
+
+			.spining-square {
+				margin: 30px auto;
+				width: 100px;
+				height: 100px;
+				background: black;
+				opacity: 0.5;
+				-webkit-animation: spining 1.5s linear infinite;
+			}
+
+			@-webkit-keyframes spining {
+				0% {-webkit-transform: perspective(50px) rotateX(0deg) rotateY(0deg);}
+				50% {-webkit-transform: perspective(50px) rotateX(180deg) rotateY(0deg);}
+				100% {-webkit-transform: perspective(50px) rotateX(180deg) rotateY(180deg);}
+			}
 		</style>
 	</head>
 	<body>
@@ -151,5 +201,13 @@
 			<div></div>
 			<div></div>
 		</div>
+
+		<div class="facebook">
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+
+		<div class="spining-square"></div>
 	</body>
 </html>
