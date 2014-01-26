@@ -1,0 +1,84 @@
+<html>
+	<head>
+		<style type="text/css">
+			.box {
+				display: inline-block;
+				float: left;
+				overflow: hidden;
+				width: 20%;
+				height: 200px;
+				-webkit-transition: width 1s;
+			}
+
+			.box.home {
+				background-color: #2d89ef; 
+			}
+
+			.box.about {
+				background-color: #00a300;
+			}
+
+			.box.portfolio {
+				background-color: #e3a21a;
+			}
+
+			.box.services {
+				background-color: #9f00a7;
+			}
+
+			.box.contact {
+				background-color: #ee1111;
+			}
+			
+			.nav:hover .box {
+				width: 10%;
+			}
+
+			.nav .box:hover {
+				width: 60%;
+			}
+
+
+			.box a {
+				color: #fff;
+				text-decoration: none;
+				vertical-align: middle;
+				height: 100%;
+				display: block;
+				padding-top: 20px;
+			}
+
+			.box span {
+				display: block;
+				position: relative;
+				top: 100%;
+				text-align: center;
+				-webkit-transition: top 1s;
+			}
+
+			.box:hover span {
+				top: 25%;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="nav">
+			<div class="box home">
+				<a href="javascript:void(0);" onclick="return false;"><span><img src="http://www.paulund.co.uk/playground/demo/css-flexible-box-menu/images/folder.png"></span></a>
+			</div>
+			<div class="box about">
+				<a href="javascript:void(0);" onclick="return false;"><span><img src="http://www.paulund.co.uk/playground/demo/css-flexible-box-menu/images/folder.png"></span></a>
+			</div>
+			<div class="box portfolio">
+				<a href="javascript:void(0);" onclick="return false;"><span><img src="http://www.paulund.co.uk/playground/demo/css-flexible-box-menu/images/folder.png"></span></a>
+			</div>
+			<div class="box services">
+				<a href="javascript:void(0);" onclick="return false;"><span><img src="http://www.paulund.co.uk/playground/demo/css-flexible-box-menu/images/screw-driver.png"></span></a>
+			</div>
+			<div class="box contact">
+				<a href="javascript:void(0);" onclick="return false;"><span><img src="http://www.paulund.co.uk/playground/demo/css-flexible-box-menu/images/mail-back.png"></span></a>
+			</div>
+		</div>
+	</body>
+</html>
