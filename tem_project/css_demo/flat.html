@@ -1,0 +1,139 @@
+<html>
+	<head>
+		<style type="text/css">
+			input[type=checkbox] {
+				visibility: hidden;
+			}
+
+			.checkboxOne {
+				width: 40px;
+				height: 10px;
+				background: #555;
+				margin: 20px 80px;
+				position: relative;
+				border-radius: 3px;
+			}
+
+			.checkboxOne label {
+				display: block;
+				width: 16px;
+				height: 16px;
+				border-radius: 50%;
+
+				-webkit-transition: all .5s ease;
+				cursor: pointer;
+				position: absolute;
+				top: -3px;
+				left: -3px;
+				background: #ccc;
+			}
+
+			.checkboxOne input[type=checkbox]:checked ~ label {
+				left: 27px;
+			}
+
+			.checkboxTwo {
+				width: 120px;
+				height: 40px;
+				border-radius: 40px;
+				background: #888;
+				position: relative;
+			}
+
+			.checkboxTwo label {
+				width: 30px;
+				height: 30px;
+				border-radius: 30px;
+				background: #ddd;
+				position: absolute;
+				left: 8px;
+				top: 5px;
+				-webkit-transition: all .5s ease;
+				cursor: pointer;
+			}
+
+			.checkboxTwo:before {
+				content: "";
+				height: 5px;
+				width: 70px;
+				background: black;
+				display: inline-block;
+				position: absolute;
+				top: 17.5px;
+				left: 23px;
+				border-radius: 5px;
+			}
+
+			.checkboxTwo input[type=checkbox]:checked ~ label {
+				left: 83px;
+				background: #26ca28;
+			}
+
+			.checkboxThree {
+				width: 120px;
+				height: 40px;
+				border-radius: 40px;
+				background: #777;
+				position: relative;
+			}
+
+			.checkboxThree:before {
+				content: "On";
+				color: #26ca28;
+				font-size: 18px;
+				position: absolute;
+				line-height: 40px;
+				left: 10px;
+				z-index: 999;
+			}
+
+			.checkboxThree:after {
+				content: "Off";
+				color: #ddd;
+				font-size: 18px;
+				position: absolute;
+				line-height: 40px;
+				left: 80px;
+				z-index: 999;
+			}
+
+			.checkboxThree label {
+				width: 40px;
+				height: 20px;
+				border-radius: 20px;
+				background: #ddd;
+				cursor: pointer;
+				position: absolute;
+				top:10px;
+				left: 8px;
+				-webkit-transition: all .5s ease;
+				z-index: 1000;
+			}
+
+			.checkboxThree input[type=checkbox]:checked ~ label {
+				left: 72px;
+				background: #26ca28;
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<div class="checkboxOne">
+				<input type="checkbox" value="1" id="checkboxOneInput" name="">
+				<label for="checkboxOneInput"></label>
+			</div>
+		</section>
+		<section>
+			<div class="checkboxTwo">
+				<input type="checkbox" value="2" id="checkboxTwoInput" name="">
+				<label for="checkboxTwoInput"></label>
+			</div>
+		</section>
+		<section>
+			<div class="checkboxThree">
+				<input type="checkbox" value="3" id="checkboxThreeInput" name="">
+				<label for="checkboxThreeInput"></label>
+			</div>
+		</section>
+	</body>
+</html>

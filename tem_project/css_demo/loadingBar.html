@@ -173,9 +173,92 @@
 			}
 
 			@-webkit-keyframes spining {
-				0% {-webkit-transform: perspective(50px) rotateX(0deg) rotateY(0deg);}
-				50% {-webkit-transform: perspective(50px) rotateX(180deg) rotateY(0deg);}
-				100% {-webkit-transform: perspective(50px) rotateX(180deg) rotateY(180deg);}
+				0% {-webkit-transform: perspective(400px) rotateX(0deg) rotateY(0deg);}
+				50% {-webkit-transform: perspective(400px) rotateX(180deg) rotateY(0deg);}
+				100% {-webkit-transform: perspective(400px) rotateX(180deg) rotateY(180deg);}
+			}
+
+			.ms {
+				margin: 30px auto;
+				height: 50px;
+				width: 200px;
+				overflow: hidden;
+			}
+
+			.ms div {
+				float: left;
+				background-color: black;
+				width: 5px;
+				height: 5px;
+				top: 48%;
+				position: relative;
+				-webkit-animation: msloading 2s ease-in-out infinite alternate;
+			}
+
+			.ms div:nth-child(1) {
+				-webkit-animation-delay: 0.1s;
+			}
+
+			.ms div:nth-child(2) {
+				-webkit-animation-delay: 0.3s;
+			}
+
+			.ms div:nth-child(3) {
+				-webkit-animation-delay: 0.5s;
+			}
+
+			.ms div:nth-child(4) {
+				-webkit-animation-delay: 0.7s;
+			}
+
+			.ms div:nth-child(5) {
+				-webkit-animation-delay: 0.8s;
+			}
+
+			.ms div:nth-child(6) {
+				-webkit-animation-delay: 0.9s;
+			}
+
+			@-webkit-keyframes msloading {
+				0% {left: 0%;}
+				100% {left: 85%}
+			}
+
+			.bounce-circle {
+				margin: 30px auto;
+				width: 100px;
+				height: 100px;
+			}
+
+			.bounce-circle div {
+				background: black;
+			}
+
+			.bounce-circle div:nth-child(1) {
+				float: left;
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+				margin: 0 auto;
+				position: relative;
+				opacity: 0.5;
+				z-index: 999;
+				-webkit-animation: bouncindg 1s ease-in-out infinite;
+			}
+
+			.bounce-circle div:nth-child(2) {
+				width: 30%;
+				height: 30%;
+				margin: 0 auto;
+				position: relative;
+				top:35%;
+				border-radius: 50%;		
+				z-index: 1000;
+			}
+
+			@-webkit-keyframes bouncindg {
+				0% {height:60%;width: 60%;top:20%;left:20%}
+				100% {height:100%;width: 100%;top:0%;left:0%}
 			}
 		</style>
 	</head>
@@ -209,5 +292,19 @@
 		</div>
 
 		<div class="spining-square"></div>
+
+		<div class="ms">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+
+		<div class="bounce-circle">
+			<div></div>
+			<div></div>
+		</div>
 	</body>
 </html>

@@ -1,0 +1,60 @@
+<html>
+	<head>
+		<style type="text/css">
+			.download-icon {
+				margin: 30px auto;
+				text-decoration: none;
+				font-weight: bold;
+				width: 100px;
+				height: 100px;
+				cursor: pointer;
+				text-align: center;
+				display: block;
+				color: #000;
+			}
+
+			.download-icon span {
+				display: block;
+				width: 80px;
+				height: 80px;
+				border: 10px solid black;
+				border-top: transparent;
+			}
+
+			.download-icon:hover span:before,.download-icon:hover span:after {
+				display: block;
+				-webkit-animation: arrow 1s ease-in-out infinite alternate;
+			}
+
+			.download-icon span:before {
+				content:"	";
+				width: 10px;
+				height: 20px;
+				display: none;
+				background: black;
+				margin: 0 auto;
+			}
+
+			.download-icon span:after {
+				content:"	";
+				width: 0;
+				height: 0;
+				display: none;
+				border: 10px solid transparent;
+				border-top: 10px solid black;
+				margin: 0 auto;
+			}
+
+			@-webkit-keyframes arrow{
+				0% {-webkit-transform: translate(0, -20px);}
+				100% {-webkit-transform: translate(0, 20px);}
+			}
+		</style>
+	</head>
+	<body>
+		<a class="download-icon" href="javascript:void(0);" onclick="return false;">
+			<span></span>
+			Download
+		</a>
+	</body>
+</html>
