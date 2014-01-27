@@ -81,4 +81,5 @@ define(function(require) {
 			this.set(name, "", new Date(0), path, domain, secure);
 		}
 	}
+
 });
