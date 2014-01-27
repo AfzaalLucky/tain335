@@ -4,8 +4,8 @@ var vm =  require('vm');
 var util = require('util');
 var Emitter = require('events').EventEmitter;
 var emitter = new Emitter();
-var root = '/home/paul/Project/nodejs-yo/webapp-1/ace-lib/modMock'
-var dest = '/home/paul/Project/nodejs-yo/webapp-1/ace-lib/modDone'
+var root = '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modMock'
+var dest = '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modDone'
 
 var fnwrap = ['(function(define,require){','})(define,require)'];
 var moduleCache = {};
@@ -62,26 +62,6 @@ function fileScanner(path, encoding) {
 	} else {
 		_resolveRequire(path, encoding);
 	}
-	/*
-	fs.stat(path, function(err, stats){
-		if (err) {
-			console.error('---file:%s stats occur error---', path);
-		} else {
-			if (stats.isDirectory()) {
-				fs.readdir(path, function(err, files){
-					if (err) {
-						console.error('---read directory error:%s occur error', path);
-					} else {
-						for(var i = files.length; i--;) {
-							fileScanner(path + '/' + files[i], encoding);
-						}
-					}
-				});
-			} else {
-				_resolveRequire(path, encoding);
-			}
-		}
-	});*/
 }
 
 function rootScanner(root, encoding) {
@@ -97,34 +77,18 @@ function rootScanner(root, encoding) {
 	} else {
 		console.error('---root path:%s not exist---', root);
 	} 
-
-	/*
-	fs.exists(root, function(exists){
-		if (exists) {
-			fs.stat(root, function(err, stats){
-				if (err) {
-					console.error('---file:%s stats occur error---', root);
-				} else {
-					if (stats.isDirectory()) {
-						fileScanner(root, encoding);
-					} else {
-						console.error('---root:%s isn\'t a directory', root);
-					}
-				}
-			})
-		} else {
-			console.error('---root path:%s not exist---', root);
-		}
-	});
-	*/
 }
 
-function copy() {
+function copy(from, dest) {
 
 }
 
-function combineSrc() {
-
+function combineSrc(path, encoding, indeep) {
+	var deps = moduleCache[path];
+	if(!deps){
+		console.warn('---No This Module:%s---', path);
+	}
+	var content =  fs.readFileSync(path, {encoding: encoding});
 }
 
 function circleReferenceCheck() {
@@ -153,19 +117,12 @@ function _circleReferenCheck(prop) {
 function _depsTrace(mod) {
 	for(var i = _depsTrace.trace.length; i-- ;) {
 		if (_depsTrace.trace[i] == mod) {
-			throw new Error('---Error! Circle Reference: ' + mod + ' ' + _depsTrace.trace[i]);
+			throw new Error('---Error! Circle Reference: ' + mod + '\n' + _depsTrace.trace.join('\n'));
 		}
 	}
 	_circleReferenCheck(mod);
 }
 
-/*
-emitter.on('done', function(){
-	console.log(moduleCache);
-});*/
-//console.log(__dirname);
-//console.log(__filename);
 rootScanner(root, 'utf-8');
-console.log(moduleCache);
 circleReferenceCheck();
 
