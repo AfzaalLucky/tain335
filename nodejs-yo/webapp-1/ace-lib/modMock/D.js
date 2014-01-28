@@ -1,3 +1,4 @@
 define(function(require){
- 	var A = require('./A');
+ 	var E = require('./mod/E');
+ 	var F = require('./C');
 });

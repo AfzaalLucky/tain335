@@ -1,3 +1,5 @@
 define(function(require){
-	var B =  require('./B');
+	//var A = require('./B');
+	//var C = require('./C')
+	//var mainTpl = require('./main.tpl.html')
 });
