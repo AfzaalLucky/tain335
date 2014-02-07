@@ -54,7 +54,7 @@ var utils = {
 var requireMock = {
 	require: function(mod) {
 		var _path = requireMock.path;
-		if (!path.extname(mod)) {
+		if (!path.extname(mod)) {;
 			moduleCache[_path].deps.push(path.resolve(path.dirname(_path), mod) + '.js');
 		} else {
 			moduleCache[_path].deps.push(path.resolve(path.dirname(_path), mod));
@@ -91,6 +91,18 @@ var requireMock = {
 				break;
 		}
 	}
+}
+
+function _isParrentPath(path) {
+	return /^\.\.\//.test(path);
+}
+
+function _isCurrentPath(path) {
+	return /^\.\//.test(path) || /^\//.test(path);
+}
+
+function _isRelativePath(path) {
+	return /^\.\.\//.test(path) || /^\.\//.test(path);
 }
 
 function _wrapMod(content) {
@@ -158,7 +170,7 @@ function combineJs(dest, encoding, indeep) {
 
 function buildDepWrap(from, to, fn) {
 	var _relativePath = path.relative(path.dirname(from), to).split('.js')[0];
-	if (_relativePath.indexOf('.') == -1) {
+	if (!_isRelativePath(_relativePath)) {
 		_relativePath = './' + _relativePath;
 	}
 	return ';define(\"' + _relativePath + '\",[\"require\"],' + fn.toString() + ')';

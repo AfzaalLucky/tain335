@@ -1,3 +1,3 @@
 define(function(require){
- 	var C = require('../C');
+ 	var C = require('./../D');
 });
