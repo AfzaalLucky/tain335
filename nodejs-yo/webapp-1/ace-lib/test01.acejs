@@ -1,0 +1,6 @@
+
+<%var C = require('./modMock/D')-%>
+
+<% if (user) { %>
+    <h2><% user.name %></h2>
+<% } %>

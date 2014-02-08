@@ -2,12 +2,14 @@ var fs = require('fs');
 var path = require('path');
 var vm =  require('vm');
 var util = require('util');
-var Emitter = require('events').EventEmitter;
-var emitter = new Emitter();
+//var Emitter = require('events').EventEmitter;
+//var emitter = new Emitter();
+var EJS = require('ejs');
 var root = '/home/paul/Project/nodejs-yo/webapp-1/ace-lib/modMock'
 var dest = '/home/paul/Project/nodejs-yo/webapp-1/ace-lib/modDone'
 
 var fnwrap = ['(function(define,require){','})(define,require)'];
+var ejswrap = ['(function(define.require){define(\"','\",function(require){','})})(define,require)'];
 var moduleCache = {};
 
 var _ots = Object.prototype.toString;
@@ -25,6 +27,9 @@ var utils = {
 		for(var i = arr.length; i--;) {
 			callback(arr[i], i, arr);
 		}
+	},
+	_trim: function(str){
+		return str.replace(/\s+/g, '');
 	},
 	_clone: function(obj, deep, level) {
 		var res = obj;
@@ -246,8 +251,125 @@ function _depsTrace(mod) {
 	_circleReferenCheck(mod);
 }
 
-rootScanner(root, 'utf-8');
-console.log(moduleCache);
-circleReferenceCheck();
-combineJs('', 'utf-8', true);
+
+/**
+ * Resolve include `name` relative to `filename`.
+ *
+ * @param {String} name
+ * @param {String} filename
+ * @return {String}
+ * @api private
+ */
+
+function resolveInclude(name, filename) {
+  var _path = path.join(path.dirname(filename), name);
+  var ext = path.extname(name);
+  if (!ext) _path += '.acejs';
+  return _path;
+}
+
+/**
+ * Parse the given `str` of ejs, returning the function body.
+ *
+ * @param {String} str
+ * @return {String}
+ * @api public
+ */
+function praseEJS(str, options){
+  var options = options || {}
+    , open = options.open || exports.open || '<%'
+    , close = options.close || exports.close || '%>'
+    , filename = options.filename
+    , compileDebug = options.compileDebug !== false
+    , buf = ""
+    , consumeEOL = options.consumeEOL;
+
+  buf += 'var buf = [];';
+  if (false !== options._with) buf += '\nwith (locals || {}) { (function(){ ';
+  buf += '\nbuf.push(\'';
+  var lineno = 1;
+  for (var i = 0, len = str.length; i < len; ++i) {
+    var stri = str[i];
+    if (str.slice(i, open.length + i) == open) {
+      i += open.length
+      var prefix, postfix;
+      switch (str[i]) {
+        case '=':
+          prefix = "', escape(";
+          postfix = "), '";
+          ++i;
+          break;
+        case '-':
+          prefix = "','";
+          postfix = ", '";
+          ++i;
+          break;
+        default:
+          prefix = "');";
+          postfix = "; buf.push('";
+      }
+      var end = str.indexOf(close, i)
+        , js = str.substring(i, end)
+        , start = i
+        , include = null
+        , n = 0;
+      if ('-' == js[js.length-1]){//容错？
+        js = js.substring(0, js.length - 2);
+      }
+
+      if (0 == js.trim().indexOf('include')) {
+        var name = js.trim().slice(7).trim();
+        if (!filename) throw new Error('filename option is required for includes');
+        var path = resolveInclude(name, filename);
+        include = fs.readFileSync(path, 'utf8');
+        include = arguments.callee(include, { filename: path, _with: false, open: open, close: close, compileDebug: compileDebug });
+        buf += "' + (function(){" + include + "})() + '";
+        js = '';
+      }
+      while (~(n = js.indexOf("\n", n))) n++, lineno++;
+      if (js) {
+        js = utils._trim(js);
+        buf += prefix;
+        buf += js;
+        buf += postfix;
+      }
+      i += end - start + close.length - 1;
+
+    } else if (stri == "\\") {
+      buf += "\\\\";
+    } else if (stri == "'") {
+      buf += "\\'";
+    } else if (stri == "\r") {
+      // ignore
+    } else if (stri == "\n") {
+      if (!consumeEOL) {
+        buf += "\\n";
+        lineno++;
+      }
+    } else if (stri == " ") {
+      // ignore
+    } else if (stri == "\t"){
+      // ignore
+    } else {
+    	buf += stri;
+    }
+  }
+
+  if (false !== options._with) buf += "'); })();\n} \nreturn buf.join('');";
+  else buf += "');\nreturn buf.join('');";
+  return buf;
+};
+
+
+//rootScanner(root, 'utf-8');
+//console.log(moduleCache);
+//circleReferenceCheck();
+//combineJs('', 'utf-8', true);
+
+function _ejsWrap(str) {
+	return
+}
+
+var content = fs.readFileSync('test.acejs', {encoding: 'utf-8'});
+console.log(praseEJS(content, {filename:'/home/paul/Project/nodejs-yo/webapp-1/ace-lib/test.acejs', compileDebug: false,_with:false, consumeEOL: true}).toString());
 
