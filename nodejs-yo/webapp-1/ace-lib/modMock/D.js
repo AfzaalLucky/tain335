@@ -1,3 +1,4 @@
 define(function(require){
- 	var F = require('./main.tpl.html');
+ 	var tpl = require('./main.tpl.html');
+ 	var E = require('./mod/E');
 });

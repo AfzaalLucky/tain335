@@ -29,7 +29,7 @@ var utils = {
 		}
 	},
 	_trim: function(str){
-		return str.replace(/\s+/g, '');
+		return str.replace(/(^\s*)|(\s*$)/g, '');
 	},
 	_clone: function(obj, deep, level) {
 		var res = obj;
@@ -178,7 +178,7 @@ function combineJs(dest, encoding, indeep) {
 			_combineJs.trace = {};
 			_combineJs.trace[prop] = true;
 			content = _combineJs(prop, encoding, indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
-			console.log('------------------------------->>')
+			//console.log('------------------------------->>')
 			console.log(content);
 			console.log('<<-------------------------------');
 		}
@@ -190,11 +190,11 @@ function buildDepWrap(from, to, fn) {
 	if (!_isRelativePath(_relativePath)) {
 		_relativePath = './' + _relativePath;
 	}
-	buildMainWrap(to, moduleCache[to].deps, moduleCache[to].fn);
+	return buildMainWrap(to, moduleCache[to].deps, moduleCache[to].fn, _relativePath);
 	//return '\n;define(\"' + _relativePath + '\",[\"require\"],' + fn.toString() + ')';
 }
 
-function buildMainWrap(prop, deps, fn) {
+function buildMainWrap(prop, deps, fn, name) {
 	var _deps = [];
 	var mod = moduleCache[prop];
 	if (!deps) {
@@ -207,7 +207,7 @@ function buildMainWrap(prop, deps, fn) {
 		}
 		_deps.push('\"' + _relativePath + '\"');
 	}
-	return '\n;define([' + (mod.fn.length === 1 ? ['\"require\"'] : ['\"require\"', '\"exports\"', '\"module\"']).concat(_deps) + '],' + fn.toString() + ')'; 
+	return '\n;define(' + (name ? '\"'+ name +'\",' : "") + '[' + (mod.fn.length === 1 ? ['\"require\"'] : ['\"require\"', '\"exports\"', '\"module\"']).concat(_deps) + '],' + fn.toString() + ')'; 
 }
 
 function _combineJs(path, encoding, indeep){
@@ -281,7 +281,7 @@ function praseTpl(str, options){
     , buf = ""
     , included = !!options.included
     , consumeEOL = !!options.consumeEOL
-    , encodeHtmlFn = 'function $encodeHtml(str) {\n\treturn (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n}\n';
+    , encodeHtmlFn = '\nfunction $encodeHtml(str) {\n\treturn (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n}\n';
 
   buf += 'var buf = [];';
   if (false !== options._with) buf += '\nwith (locals || {}) { (function(){ ';
@@ -367,7 +367,7 @@ function praseTpl(str, options){
 
 
 rootScanner(root, 'utf-8');
-console.log(moduleCache);
+//console.log(moduleCache);
 circleReferenceCheck();
 combineJs('', 'utf-8', true);
 
