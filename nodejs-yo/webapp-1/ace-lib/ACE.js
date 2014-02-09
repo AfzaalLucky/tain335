@@ -2,14 +2,14 @@ var fs = require('fs');
 var path = require('path');
 var vm =  require('vm');
 var util = require('util');
-//var Emitter = require('events').EventEmitter;
-//var emitter = new Emitter();
-var EJS = require('ejs');
-var root = '/home/paul/Project/nodejs-yo/webapp-1/ace-lib/modMock'
-var dest = '/home/paul/Project/nodejs-yo/webapp-1/ace-lib/modDone'
+var commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg;
+var cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
+var root = '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modMock'
+var dest = '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modDone'
 
-var fnwrap = ['(function(define,require){','})(define,require)'];
-var ejswrap = ['(function(define.require){define(\"','\",function(require){','})})(define,require)'];
+var fnwrap = ['(function(define){','})(define)'];
+var tplwrap = ['(function(define){define(function(require){', '});})(define)']
+//var tplwrap = ['(function(define.require){define(\"','\",function(require){','})})(define,require)'];
 var moduleCache = {};
 
 var _ots = Object.prototype.toString;
@@ -57,45 +57,46 @@ var utils = {
 }
 
 var requireMock = {
-	require: function(mod) {
+	define: function (name, deps, callback) {
 		var _path = requireMock.path;
-		if (!path.extname(mod)) {;
-			moduleCache[_path].deps.push(path.resolve(path.dirname(_path), mod) + '.js');
-		} else {
-			moduleCache[_path].deps.push(path.resolve(path.dirname(_path), mod));
+        if(!moduleCache[_path]) {
+			moduleCache[_path] = {fn:function(){},deps:[]};
 		}
-	},
-	define: function() {
-		if(!moduleCache[requireMock.path]) {
-			moduleCache[requireMock.path] = {fn:function(){},deps:[]};
-		}
-		switch(arguments.length){
-			case 1:
-				if (utils._isFunction(arguments[0])) {
-					moduleCache[requireMock.path].fn = arguments[0];
-					arguments[0](requireMock.require);
-				} else if(typeof arguments[0] == 'object' && arguments[0].constructor == Object) {
 
-				} else {
-					console.warn('---Illegal argument! define function expect a function or object;Module path:%s---', requireMock.path);
-				}
-				break;
-			case 2:
-				if (util.isArray(arguments[0]) && utils._isFunction(arguments[1])) {
+        //Allow for anonymous modules
+        if (typeof name !== 'string') {
+            //Adjust args appropriately
+            callback = deps;
+            deps = name;
+            name = null;
+        }
 
-				} else {
-					console.warn('---Illegal argument! define function expect a array and function;Module path:%s---', requireMock.path);
-				}
-				break;
-			case 3:
+        //This module may not have dependencies
+        if (!utils._isArray(deps)) {
+            callback = deps;
+            deps = null;
+        }
 
-				break;
-
-			default :
-				console.log.warn('---Illegal arguments!Module path:%s---', requireMock.path);
-				break;
-		}
-	}
+        //If no name, and callback is a function, then figure out if it a
+        //CommonJS thing with dependencies.
+        if (!deps && utils._isFunction(callback)) {
+            deps = [];
+            if (callback.length) {
+                callback
+                    .toString()
+                    .replace(commentRegExp, '')
+                    .replace(cjsRequireRegExp, function (match, dep) {
+						if (!path.extname(dep)) {;
+							moduleCache[_path].deps.push(path.resolve(path.dirname(_path), dep) + '.js');
+						} else {
+							moduleCache[_path].deps.push(path.resolve(path.dirname(_path), dep));
+						}
+                    });
+                //moduleCache[_path].deps = (callback.length === 1 ? ['require'] : ['require', 'exports', 'module']).concat(moduleCache[_path].deps);
+            }
+        }
+        moduleCache[_path].fn = callback;
+    }
 }
 
 function _isParrentPath(path) {
@@ -114,20 +115,34 @@ function _wrapMod(content) {
 	return fnwrap[0] + content + fnwrap[1];
 }
 
-function _resolveRequire(_path, encoding) {
+function _wrapTpl(content) {
+	return tplwrap[0] + content + tplwrap[1];
+}
+
+function _isBasicDeps(str) {
+	if (!str || str == 'require' || str == 'exports' || str == 'module') {
+		return true;
+	}
+	return false;
+}
+
+function _resolveRequire(_path, opt) {
+	opt = opt || {};
+	var encoding = opt.encoding ? opt.encoding: 'utf-8';
 	var content =  fs.readFileSync(_path, {encoding: encoding});
-	content = _wrapMod(content);
+	requireMock.path = _path;
 	if (path.extname(_path) == '.js') {
-		requireMock.path = _path;
+		content = _wrapMod(content);
 	} else {
 		if(!moduleCache[_path]) {
-			moduleCache[_path] = {fn:function(){},deps:[]};
+			moduleCache[_path] = {fn:'function(require){' + content + '}',deps:[]};
 		}
-		return;
+		content = praseTpl(content, {filename:_path, compileDebug: false,_with:true, consumeEOL: true});
+		moduleCache[_path].fn = content;
+		content = _wrapTpl(content);
 	}
 	vm.runInNewContext(content, requireMock);
 }
-
 
 function fileScanner(path, encoding) {
 	var stats = fs.statSync(path);
@@ -156,10 +171,6 @@ function rootScanner(root, encoding) {
 	} 
 }
 
-function copy(from, dest) {
-
-}
-
 function combineJs(dest, encoding, indeep) {
 	for(var prop in moduleCache) {
 		if (moduleCache.hasOwnProperty(prop)) {
@@ -167,8 +178,9 @@ function combineJs(dest, encoding, indeep) {
 			_combineJs.trace = {};
 			_combineJs.trace[prop] = true;
 			content = _combineJs(prop, encoding, indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
+			console.log('------------------------------->>')
 			console.log(content);
-			console.log('-------------------------------');
+			console.log('<<-------------------------------');
 		}
 	}
 }
@@ -178,23 +190,24 @@ function buildDepWrap(from, to, fn) {
 	if (!_isRelativePath(_relativePath)) {
 		_relativePath = './' + _relativePath;
 	}
-	return ';define(\"' + _relativePath + '\",[\"require\"],' + fn.toString() + ')';
+	buildMainWrap(to, moduleCache[to].deps, moduleCache[to].fn);
+	//return '\n;define(\"' + _relativePath + '\",[\"require\"],' + fn.toString() + ')';
 }
 
 function buildMainWrap(prop, deps, fn) {
 	var _deps = [];
+	var mod = moduleCache[prop];
 	if (!deps) {
 		deps = _deps;
 	}
 	for(var i = 0; i < deps.length; i++) {
 		var _relativePath = path.relative(path.dirname(prop), deps[i]).split('.js')[0];
-		if (_relativePath.indexOf('.') == -1) {
+		if (!_isRelativePath(_relativePath)) {
 			_relativePath = './' + _relativePath;
 		}
 		_deps.push('\"' + _relativePath + '\"');
 	}
-	_deps.unshift('\"require\"');
-	return ';define([' + _deps + '],' + fn.toString() + ')'; 
+	return '\n;define([' + (mod.fn.length === 1 ? ['\"require\"'] : ['\"require\"', '\"exports\"', '\"module\"']).concat(_deps) + '],' + fn.toString() + ')'; 
 }
 
 function _combineJs(path, encoding, indeep){
@@ -230,11 +243,10 @@ function circleReferenceCheck() {
 }
 
 function _circleReferenCheck(prop) {
-	console.log(prop);
-	var deps = moduleCache[prop].deps;
-	if(!deps){
+	if (!moduleCache[prop]) {
 		throw new Error('---Error! Module Canot Found: ' + prop);
 	}
+	var deps = moduleCache[prop].deps;
 	_depsTrace.trace.unshift(prop);
 	for(var j = deps.length; j--;) {
 		_depsTrace(deps[j]);
@@ -252,37 +264,24 @@ function _depsTrace(mod) {
 }
 
 
-/**
- * Resolve include `name` relative to `filename`.
- *
- * @param {String} name
- * @param {String} filename
- * @return {String}
- * @api private
- */
-
 function resolveInclude(name, filename) {
   var _path = path.join(path.dirname(filename), name);
   var ext = path.extname(name);
-  if (!ext) _path += '.acejs';
+  if (!ext) _path += '.tpl.html';
   return _path;
 }
 
-/**
- * Parse the given `str` of ejs, returning the function body.
- *
- * @param {String} str
- * @return {String}
- * @api public
- */
-function praseEJS(str, options){
+
+function praseTpl(str, options){
   var options = options || {}
     , open = options.open || exports.open || '<%'
     , close = options.close || exports.close || '%>'
     , filename = options.filename
     , compileDebug = options.compileDebug !== false
     , buf = ""
-    , consumeEOL = options.consumeEOL;
+    , included = !!options.included
+    , consumeEOL = !!options.consumeEOL
+    , encodeHtmlFn = 'function $encodeHtml(str) {\n\treturn (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n}\n';
 
   buf += 'var buf = [];';
   if (false !== options._with) buf += '\nwith (locals || {}) { (function(){ ';
@@ -295,15 +294,16 @@ function praseEJS(str, options){
       var prefix, postfix;
       switch (str[i]) {
         case '=':
-          prefix = "', escape(";
-          postfix = "), '";
-          ++i;
-          break;
-        case '-':
-          prefix = "','";
-          postfix = ", '";
-          ++i;
-          break;
+        	if (str[i+1] == '=') {
+        		prefix = "', $encodeHtml(";
+		        postfix = "), '";
+		        i += 2;
+        	} else {
+        		prefix = "',";
+		        postfix = ",'";
+		        ++i;
+        	}        
+	        break;
         default:
           prefix = "');";
           postfix = "; buf.push('";
@@ -313,16 +313,18 @@ function praseEJS(str, options){
         , start = i
         , include = null
         , n = 0;
-      if ('-' == js[js.length-1]){//容错？
-        js = js.substring(0, js.length - 2);
-      }
-
       if (0 == js.trim().indexOf('include')) {
         var name = js.trim().slice(7).trim();
         if (!filename) throw new Error('filename option is required for includes');
         var path = resolveInclude(name, filename);
         include = fs.readFileSync(path, 'utf8');
-        include = arguments.callee(include, { filename: path, _with: false, open: open, close: close, compileDebug: compileDebug });
+        include = arguments.callee(include, { filename: path, _with: false, open: open, close: close, compileDebug: compileDebug, consumeEOL: consumeEOL,included: true});
+        if(!moduleCache[path]) {
+			moduleCache[path] = {fn:'function(require){' + include + '}',deps:[]};
+			requireMock.path = path;
+        	vm.runInNewContext( _wrapTpl(include), requireMock);
+		}
+        requireMock.path = filename;
         buf += "' + (function(){" + include + "})() + '";
         js = '';
       }
@@ -354,22 +356,22 @@ function praseEJS(str, options){
     	buf += stri;
     }
   }
-
-  if (false !== options._with) buf += "'); })();\n} \nreturn buf.join('');";
-  else buf += "');\nreturn buf.join('');";
-  return buf;
+	if (false !== options._with) buf += "'); })();\n}";
+	else buf += "');";
+	if (!included) {
+		buf = encodeHtmlFn + buf;
+	}
+	buf += "\nreturn buf.join('');"
+	return buf;
 };
 
 
-//rootScanner(root, 'utf-8');
-//console.log(moduleCache);
-//circleReferenceCheck();
-//combineJs('', 'utf-8', true);
+rootScanner(root, 'utf-8');
+console.log(moduleCache);
+circleReferenceCheck();
+combineJs('', 'utf-8', true);
 
-function _ejsWrap(str) {
-	return
-}
 
-var content = fs.readFileSync('test.acejs', {encoding: 'utf-8'});
-console.log(praseEJS(content, {filename:'/home/paul/Project/nodejs-yo/webapp-1/ace-lib/test.acejs', compileDebug: false,_with:false, consumeEOL: true}).toString());
+//var content = fs.readFileSync('test.tpl.html', {encoding: 'utf-8'});
+//console.log(praseTpl(content, {filename:'/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/test.tpl.html', compileDebug: false,_with:true, consumeEOL: true}).toString());
 
