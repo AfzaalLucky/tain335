@@ -1,4 +1,5 @@
-module.exports = {
+ var _ots = Object.prototype.toString;
+ module.exports = {
   _isFunction: function(obj) {
     return _ots.call(obj) == '[object Function]';
   },
@@ -6,7 +7,7 @@ module.exports = {
     return _ots.call(obj) == '[object Array]';
   },
   _getArray: function(arr) {
-    return Array.prototype.slice(arr);
+    return Array.prototype.slice.call(arr);
   },
   _each: function(arr, callback) {
     for(var i = arr.length; i--;) {

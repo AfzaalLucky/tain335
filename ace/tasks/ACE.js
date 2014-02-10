@@ -2,59 +2,14 @@ var fs = require('fs');
 var path = require('path');
 var vm =  require('vm');
 var util = require('util');
+var utils = require('./lib/utils');
+var grunt = require('grunt');
 var commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg;
 var cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
-var root = '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modMock'
-var dest = '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modDone'
-
 var fnwrap = ['(function(define){','})(define)'];
 var tplwrap = ['(function(define){define(function(require){', '});})(define)']
 //var tplwrap = ['(function(define.require){define(\"','\",function(require){','})})(define,require)'];
 var moduleCache = {};
-
-var _ots = Object.prototype.toString;
-var utils = {
-	_isFunction: function(obj) {
-		return _ots.call(obj) == '[object Function]';
-	},
-	_isArray: function(obj) {
-		return _ots.call(obj) == '[object Array]';
-	},
-	_getArray: function(arr) {
-		return Array.prototype.slice(arr);
-	},
-	_each: function(arr, callback) {
-		for(var i = arr.length; i--;) {
-			callback(arr[i], i, arr);
-		}
-	},
-	_trim: function(str){
-		return str.replace(/(^\s*)|(\s*$)/g, '');
-	},
-	_clone: function(obj, deep, level) {
-		var res = obj;
-		deep = deep || 0;
-		level = level || 0;
-		if (level > deep) {
-			return res;
-		}
-		if (typeof obj == 'object' && obj) {
-			if (_isArray(obj)) {
-				res = [];
-				_each(obj, function(item){
-					res.push(item);
-				});
-			} else {
-				res = {};
-				for(var p in obj) {
-					if (obj.hasOwnProperty(p)) {
-						res[p] = deep ? _clone(obj[p], deep, ++level) : obj[p];
-					}
-				}
-			}
-		}
-	}
-}
 
 var requireMock = {
 	define: function (name, deps, callback) {
@@ -95,15 +50,31 @@ var requireMock = {
                 //moduleCache[_path].deps = (callback.length === 1 ? ['require'] : ['require', 'exports', 'module']).concat(moduleCache[_path].deps);
             }
         }
-        moduleCache[_path].fn = callback;
+        if (path.extname(_path) === '.js') {
+        	moduleCache[_path].fn = callback;
+        }
     }
 }
 
-function log(msg) {
-	grunt.log.writeln(msg);
+function log() {
+	grunt.log.writeln(_joint(arguments));
 }
 function warn(msg) {
-	grunt.log.warn(msg);
+	grunt.log.warn(_joint(arguments));
+}
+
+function _joint(obj){
+	var args = [];
+	var msg = '';
+	if (obj.length == 1) {		
+		msg = obj[0];
+	} else {		
+		args = utils._getArray(obj).slice(1);
+		msg = obj[0].replace(/(%s)+/g, function(){
+			return args.shift();
+		})
+	}
+	return msg;
 }
 
 function _isParrentPath(path) {
@@ -140,12 +111,12 @@ function _resolveRequire(_path, opt) {
 	requireMock.path = _path;
 	if (path.extname(_path) == '.js') {
 		content = _wrapMod(content);
-	} else {
+	} else if (/\.tpl\.html$/.test(_path)) {
 		if(!moduleCache[_path]) {
 			moduleCache[_path] = {fn:'function(require){' + content + '}',deps:[]};
 		}
 		content = praseTpl(content, {filename:_path, compileDebug: false,_with:true, consumeEOL: true});
-		moduleCache[_path].fn = content;
+		moduleCache[_path].fn = 'function(require){ return { render: function(locals){' + content + '}}}';
 		content = _wrapTpl(content);
 	}
 	vm.runInNewContext(content, requireMock);
@@ -170,11 +141,11 @@ function rootScanner(root, encoding) {
 			if (stats.isDirectory()) {
 				fileScanner(root, encoding);
 			} else {
-				console.error('---root:%s isn\'t a directory', root);
+				warn('---root:%s isn\'t a directory', root);
 			}
 		}
 	} else {
-		console.error('---root path:%s not exist---', root);
+		warn('---root path:%s not exist---', root);
 	} 
 }
 
@@ -221,7 +192,7 @@ function _combineJs(path, encoding, indeep){
 	var deps = moduleCache[path].deps;
 	var content = '';
 	if (!deps) {
-		console.warn('---No This Module:%s---', path);
+		warn('---No This Module:%s---', path);
 		return '';
 	}
 	for(var i = deps.length; i--;) {
@@ -327,7 +298,7 @@ function praseTpl(str, options){
         include = fs.readFileSync(path, 'utf8');
         include = arguments.callee(include, { filename: path, _with: false, open: open, close: close, compileDebug: compileDebug, consumeEOL: consumeEOL,included: true});
         if(!moduleCache[path]) {
-			moduleCache[path] = {fn:'function(require){' + include + '}',deps:[]};
+			moduleCache[path] = {fn:'function(require){ return { render: function(locals){' + include + '}}',deps:[]};
 			requireMock.path = path;
         	vm.runInNewContext( _wrapTpl(include), requireMock);
 		}
@@ -381,7 +352,7 @@ module.exports = function(grunt) {
 				scanAll(options);
 				break;
 			case 'combine':
-				console.log('combine');
+				combineAll(options);
 				break;
 		}
 	});
@@ -390,7 +361,7 @@ module.exports = function(grunt) {
 		rootScanner(options.root, options.encoding);
 	}
 
-	function combineAll() {
-
+	function combineAll(options) {
+		combineJs(options.dest, options.encoding, options.indeep);
 	}
 }

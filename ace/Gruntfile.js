@@ -39,6 +39,8 @@ module.exports = function(grunt) {
       },
       'combine-all': {
         options: {
+          dest: '',
+          indeed: true
         }
       },
     },
