@@ -77,7 +77,7 @@ function _joint(obj){
 	return msg;
 }
 
-function _isParrentPath(path) {
+function _isParentPath(path) {
 	return /^\.\.\//.test(path);
 }
 
@@ -104,6 +104,13 @@ function _isBasicDeps(str) {
 	return false;
 }
 
+function _resolveSrcRequire(_path, opt) {
+	//console.log(moduleCache[_path].fn);
+	moduleCache[_path].fn.replace(/<!--\s*require\s+(['"])([^'"]+)\1(?:\s+plain-id:([\w-]+))?\s*-->/mg, function(m, code) {
+		console.log(code);
+	});
+}
+
 function _resolveRequire(_path, opt) {
 	opt = opt || {};
 	var encoding = opt.encoding ? opt.encoding: 'utf-8';
@@ -111,13 +118,18 @@ function _resolveRequire(_path, opt) {
 	requireMock.path = _path;
 	if (path.extname(_path) == '.js') {
 		content = _wrapMod(content);
-	} else if (/\.tpl\.html$/.test(_path)) {
-		if(!moduleCache[_path]) {
+	} else if (/\.tpl\.html?$/.test(_path)) {
+		if (!moduleCache[_path]) {
 			moduleCache[_path] = {fn:'function(require){' + content + '}',deps:[]};
 		}
 		content = praseTpl(content, {filename:_path, compileDebug: false,_with:true, consumeEOL: true});
 		moduleCache[_path].fn = 'function(require){ return { render: function(locals){' + content + '}}}';
 		content = _wrapTpl(content);
+	} else if (/\.src\.html?$/.test(_path)) {
+		if (!moduleCache[_path]) {
+			moduleCache[_path] = {fn: content, deps: []};
+		}
+		_resolveSrcRequire(_path, opt);
 	}
 	vm.runInNewContext(content, requireMock);
 }
@@ -141,24 +153,22 @@ function rootScanner(root, encoding) {
 			if (stats.isDirectory()) {
 				fileScanner(root, encoding);
 			} else {
-				warn('---root:%s isn\'t a directory', root);
+				warn('root:%s isn\'t a directory', root);
 			}
 		}
 	} else {
-		warn('---root path:%s not exist---', root);
+		warn('root path:%s not exist', root);
 	} 
 }
 
-function combineJs(dest, encoding, indeep) {
+function combineJs(encoding, indeep) {
 	for(var prop in moduleCache) {
 		if (moduleCache.hasOwnProperty(prop)) {
 			var content = '';
 			_combineJs.trace = {};
 			_combineJs.trace[prop] = true;
-			content = _combineJs(prop, encoding, indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
-			//console.log('------------------------------->>')
-			console.log(content);
-			console.log('<<-------------------------------');
+			var content = _combineJs(prop, encoding, indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
+			moduleCache[prop].buildContent = content;
 		}
 	}
 }
@@ -169,7 +179,6 @@ function buildDepWrap(from, to, fn) {
 		_relativePath = './' + _relativePath;
 	}
 	return buildMainWrap(to, moduleCache[to].deps, moduleCache[to].fn, _relativePath);
-	//return '\n;define(\"' + _relativePath + '\",[\"require\"],' + fn.toString() + ')';
 }
 
 function buildMainWrap(prop, deps, fn, name) {
@@ -343,6 +352,23 @@ function praseTpl(str, options){
 	return buf;
 };
 
+function copyFiles(from, dest, encoding) {
+	for(var prop in moduleCache) {
+		if (moduleCache.hasOwnProperty(prop)) {
+			var _path = prop.replace(from, dest);
+			var dirname = path.dirname(_path);
+			if (!fs.existsSync(dirname)) {
+				fs.mkdirSync(path.dirname(_path));
+			}
+			if (path.extname(prop) == '.js') {
+				fs.writeFileSync(_path, moduleCache[prop].buildContent, {encoding: 'utf-8'});
+			} else if (!/\.tpl\.html?$/.test(prop)) {
+				//fs
+			}
+		}
+	}
+}
+
 module.exports = function(grunt) {
 	grunt.registerMultiTask('ACE', 'ACE for package', function() {
 		var options = this.options({});
@@ -351,8 +377,8 @@ module.exports = function(grunt) {
 			case 'scan':
 				scanAll(options);
 				break;
-			case 'combine':
-				combineAll(options);
+			case 'copy':
+				copyAll(options);
 				break;
 		}
 	});
@@ -361,7 +387,8 @@ module.exports = function(grunt) {
 		rootScanner(options.root, options.encoding);
 	}
 
-	function combineAll(options) {
-		combineJs(options.dest, options.encoding, options.indeep);
+	function copyAll(options) {
+		combineJs(options.encoding, options.indeep);
+		copyFiles(options.root, options.dest, options.encoding);
 	}
 }

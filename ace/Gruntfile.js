@@ -30,19 +30,20 @@ module.exports = function(grunt) {
     // Configuration to be run (and then tested).
     ACE: {
       options: {
-        encoding: 'utf-8'
+        encoding: 'utf-8',
+        root: '/home/paul/Project/ace/modMock'
       },
       'scan-all': {
         options: {
-          root: '/home/paul/tain335/nodejs-yo/webapp-1/ace-lib/modMock'
+          
         }
       },
-      'combine-all': {
+      'copy-all': {
         options: {
-          dest: '',
+          dest: '/home/paul/Project/ace/proj',
           indeed: true
         }
-      },
+      }
     },
 
   });
