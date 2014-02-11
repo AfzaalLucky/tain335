@@ -292,8 +292,9 @@ function praseTpl(str, options){
         	}        
 	        break;
         default:
-          prefix = "');";
-          postfix = "; buf.push('";
+          //prefix = "');";
+          //postfix = "; buf.push('";
+          break;
       }
       var end = str.indexOf(close, i)
         , js = str.substring(i, end)
