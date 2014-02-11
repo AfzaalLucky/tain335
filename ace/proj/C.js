@@ -1,4 +1,1 @@
-
-;define(["require"],function (require){
-	//wewe
-})
+undefined

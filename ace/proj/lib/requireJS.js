@@ -1,2 +1,1 @@
-
-;define(["require","exports","module"],function (){})
+undefined

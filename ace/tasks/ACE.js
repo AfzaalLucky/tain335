@@ -38,9 +38,9 @@ var requireMock = {
                     .replace(commentRegExp, '')
                     .replace(cjsRequireRegExp, function (match, dep) {
 						if (!path.extname(dep)) {;
-							moduleCache[_path].deps.push(path.resolve(path.dirname(_path), dep) + '.js');
+							moduleCache[_path].deps.push({path: path.resolve(path.dirname(_path), dep) + '.js'});
 						} else {
-							moduleCache[_path].deps.push(path.resolve(path.dirname(_path), dep));
+							moduleCache[_path].deps.push({path: path.resolve(path.dirname(_path), dep)});
 						}
                     });
                 //moduleCache[_path].deps = (callback.length === 1 ? ['require'] : ['require', 'exports', 'module']).concat(moduleCache[_path].deps);
@@ -98,11 +98,12 @@ function _resolveSrcRequire(_path, opt) {
 		if (!path.extname($3)) {
 			modPath += '.js';
 		}
-		moduleCache[_path].deps.push(modPath);
 		if ($1 == 'require') {
-			_resolveRequire(modPath, {encoding:opt.encoding,indeep:true});
+			//_resolveRequire(modPath, {encoding:opt.encoding,indeep:true});
+			moduleCache[_path].deps.push({path:modPath,indeep:true});
 		} else {
-			_resolveRequire(modPath, {encoding:opt.encoding,indeep:false});
+			//_resolveRequire(modPath, {encoding:opt.encoding,indeep:false});
+			moduleCache[_path].deps.push({path:modPath,indeep:false});
 		}
 		return '';
 	})
@@ -165,11 +166,17 @@ function rootScanner(root, encoding) {
 function combineJs(encoding) {
 	for(var prop in moduleCache) {
 		if (moduleCache.hasOwnProperty(prop)) {
-			var content = '';
-			_combineJs.trace = {};
-			_combineJs.trace[prop] = true;
-			var content = _combineJs(prop, encoding, moduleCache[prop].indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
-			moduleCache[prop].buildContent = content;
+			if (/\.src\.html?$/.test(prop)) {
+				var content = '';
+				_combineJs.trace = {};
+				_combineJs.trace[prop] = true;
+				for(var i = 0 ; i < moduleCache[prop].deps.length; i++) {
+					var mod = moduleCache[prop].deps[i];
+					content = _combineJs(mod.path, encoding, mod.indeep) + buildMainWrap(mod.path, moduleCache[mod.path].deps, moduleCache[mod.path].fn);
+					moduleCache[prop].buildContent = content;
+					console.log(content);
+				}
+			}
 		}
 	}
 }
@@ -179,7 +186,7 @@ function buildDepWrap(from, to, fn) {
 	if (!_isRelativePath(_relativePath)) {
 		_relativePath = './' + _relativePath;
 	}
-	return buildMainWrap(to, moduleCache[to].deps, moduleCache[to].fn, _relativePath);
+	return buildMainWrap(to, moduleCache[to].deps, moduleCache[to].fn, _relativePath)
 }
 
 function buildMainWrap(prop, deps, fn, name) {
@@ -189,7 +196,7 @@ function buildMainWrap(prop, deps, fn, name) {
 		deps = _deps;
 	}
 	for(var i = 0; i < deps.length; i++) {
-		var _relativePath = path.relative(path.dirname(prop), deps[i]).split('.js')[0];
+		var _relativePath = path.relative(path.dirname(prop), deps[i].path).split('.js')[0];
 		if (!_isRelativePath(_relativePath)) {
 			_relativePath = './' + _relativePath;
 		}
@@ -206,14 +213,14 @@ function _combineJs(path, encoding, indeep){
 		return '';
 	}
 	for(var i = deps.length; i--;) {
-		if (_combineJs.trace[deps[i]]) {
+		if (_combineJs.trace[deps[i].path]) {
 			continue;
 		} else {
-			_combineJs.trace[deps[i]] = true;
+			_combineJs.trace[deps[i].path] = true;
 		}
-		content += buildDepWrap(path, deps[i], moduleCache[deps[i]].fn);
+		content += buildDepWrap(path, deps[i].path, moduleCache[deps[i].path].fn);
 		if (indeep) {
-			content += _combineJs(deps[i], encoding, indeep);
+			content += _combineJs(deps[i].path, encoding, indeep);
 		} else {
 			return '';
 		}
@@ -240,7 +247,7 @@ function _circleReferenCheck(prop) {
 	var deps = moduleCache[prop].deps;
 	_depsTrace.trace.unshift(prop);
 	for(var j = deps.length; j--;) {
-		_depsTrace(deps[j]);
+		_depsTrace(deps[j].path);
 	}
 	_depsTrace.trace.shift();
 }
