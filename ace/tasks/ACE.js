@@ -14,10 +14,6 @@ var moduleCache = {};
 var requireMock = {
 	define: function (name, deps, callback) {
 		var _path = requireMock.path;
-        if(!moduleCache[_path]) {
-			moduleCache[_path] = {fn:function(){},deps:[]};
-		}
-
         //Allow for anonymous modules
         if (typeof name !== 'string') {
             //Adjust args appropriately
@@ -77,14 +73,6 @@ function _joint(obj){
 	return msg;
 }
 
-function _isParentPath(path) {
-	return /^\.\.\//.test(path);
-}
-
-function _isCurrentPath(path) {
-	return /^\.\//.test(path) || /^\//.test(path);
-}
-
 function _isRelativePath(path) {
 	return /^\.\.\//.test(path) || /^\.\//.test(path);
 }
@@ -97,26 +85,38 @@ function _wrapTpl(content) {
 	return tplwrap[0] + content + tplwrap[1];
 }
 
-function _isBasicDeps(str) {
-	if (!str || str == 'require' || str == 'exports' || str == 'module') {
-		return true;
+function _readFile(_path, encoding) {
+	if (!fs.existsSync(path)) {
+		throw new Error('Error! File not exists: ' + _path);
 	}
-	return false;
+	return fs.readFileSync(_path, encoding);
 }
 
 function _resolveSrcRequire(_path, opt) {
-	//console.log(moduleCache[_path].fn);
-	moduleCache[_path].fn.replace(/<!--\s*require\s+(['"])([^'"]+)\1(?:\s+plain-id:([\w-]+))?\s*-->/mg, function(m, code) {
-		console.log(code);
-	});
+	moduleCache[_path].fn.replace(/<!--\s*(require|include)\s+(['"])([^'"]+)(['"])\s*-->/mg, function(m, $1, $2, $3, $4) {
+		var modPath = path.join(path.dirname(_path), $3);
+		if (!path.extname($3)) {
+			modPath += '.js';
+		}
+		moduleCache[_path].deps.push(modPath);
+		if ($1 == 'require') {
+			_resolveRequire(modPath, {encoding:opt.encoding,indeep:true});
+		} else {
+			_resolveRequire(modPath, {encoding:opt.encoding,indeep:false});
+		}
+		return '';
+	})
 }
 
 function _resolveRequire(_path, opt) {
 	opt = opt || {};
 	var encoding = opt.encoding ? opt.encoding: 'utf-8';
-	var content =  fs.readFileSync(_path, {encoding: encoding});
+	var content = fs.readFileSync(_path, {encoding: encoding});
 	requireMock.path = _path;
 	if (path.extname(_path) == '.js') {
+		if(!moduleCache[_path]) {
+			moduleCache[_path] = {fn:function(){}, deps:[], indeep:opt.indeep};
+		}
 		content = _wrapMod(content);
 	} else if (/\.tpl\.html?$/.test(_path)) {
 		if (!moduleCache[_path]) {
@@ -130,6 +130,7 @@ function _resolveRequire(_path, opt) {
 			moduleCache[_path] = {fn: content, deps: []};
 		}
 		_resolveSrcRequire(_path, opt);
+		return;
 	}
 	vm.runInNewContext(content, requireMock);
 }
@@ -161,13 +162,13 @@ function rootScanner(root, encoding) {
 	} 
 }
 
-function combineJs(encoding, indeep) {
+function combineJs(encoding) {
 	for(var prop in moduleCache) {
 		if (moduleCache.hasOwnProperty(prop)) {
 			var content = '';
 			_combineJs.trace = {};
 			_combineJs.trace[prop] = true;
-			var content = _combineJs(prop, encoding, indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
+			var content = _combineJs(prop, encoding, moduleCache[prop].indeep) + buildMainWrap(prop, moduleCache[prop].deps, moduleCache[prop].fn);
 			moduleCache[prop].buildContent = content;
 		}
 	}
@@ -210,10 +211,13 @@ function _combineJs(path, encoding, indeep){
 		} else {
 			_combineJs.trace[deps[i]] = true;
 		}
-		if (indeep) {
-			content += _combineJs(deps[i], encoding, true);
-		}
 		content += buildDepWrap(path, deps[i], moduleCache[deps[i]].fn);
+		if (indeep) {
+			content += _combineJs(deps[i], encoding, indeep);
+		} else {
+			return '';
+		}
+		
 	}
 	return content;
 }
@@ -251,7 +255,7 @@ function _depsTrace(mod) {
 }
 
 
-function resolveInclude(name, filename) {
+function resolveTplInclude(name, filename) {
   var _path = path.join(path.dirname(filename), name);
   var ext = path.extname(name);
   if (!ext) _path += '.tpl.html';
@@ -292,8 +296,8 @@ function praseTpl(str, options){
         	}        
 	        break;
         default:
-          //prefix = "');";
-          //postfix = "; buf.push('";
+          prefix = "');";
+          postfix = "; buf.push('";
           break;
       }
       var end = str.indexOf(close, i)
@@ -304,7 +308,7 @@ function praseTpl(str, options){
       if (0 == js.trim().indexOf('include')) {
         var name = js.trim().slice(7).trim();
         if (!filename) throw new Error('filename option is required for includes');
-        var path = resolveInclude(name, filename);
+        var path = resolveTplInclude(name, filename);
         include = fs.readFileSync(path, 'utf8');
         include = arguments.callee(include, { filename: path, _with: false, open: open, close: close, compileDebug: compileDebug, consumeEOL: consumeEOL,included: true});
         if(!moduleCache[path]) {
@@ -389,7 +393,7 @@ module.exports = function(grunt) {
 	}
 
 	function copyAll(options) {
-		combineJs(options.encoding, options.indeep);
+		combineJs(options.encoding);
 		copyFiles(options.root, options.dest, options.encoding);
 	}
 }
