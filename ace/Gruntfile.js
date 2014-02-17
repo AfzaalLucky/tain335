@@ -31,7 +31,7 @@ module.exports = function(grunt) {
     ACE: {
       options: {
         encoding: 'utf-8',
-        root: '/home/paul/Project/ace/modMock'
+        root: '/home/paul/tain335/ace/modMock'
       },
       'scan-all': {
         options: {
@@ -40,8 +40,8 @@ module.exports = function(grunt) {
       },
       'copy-all': {
         options: {
-          dest: '/home/paul/Project/ace/proj',
-          indeed: true
+          dest: '/home/paul/tain335/ace/proj',
+          //indeep: true
         }
       }
     },
