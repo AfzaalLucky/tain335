@@ -12,7 +12,7 @@ var mail = require('../services/mail');
 exports.showSignup = function (req, res) {
   res.render('sign/signup');
 };
-
+  
 exports.signup = function (req, res, next) {
   var name = sanitize(req.body.name).trim();
   name = sanitize(name).xss();
