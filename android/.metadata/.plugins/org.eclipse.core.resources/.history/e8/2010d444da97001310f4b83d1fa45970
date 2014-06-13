@@ -1,0 +1,7 @@
+package com.example.demo01;
+
+import android.support.v4.app.ListFragment;
+
+public static class CursorLoaderListFragment extends ListFragment implements OnQueryTextListener, LoaderManger.LoaderCallbacks<Cusror>{
+
+}

@@ -1,0 +1,25 @@
+var Q = require('q');
+
+var fn1 = function() {
+	var defer = Q.defer();
+	setTimeout(function() {
+		defer.resolve(10);
+	}, 1000)
+	return defer.promise;
+}
+
+var fn2 = function(v1,v2) {
+	console.log(v1);
+	var defer = Q.defer();
+	setTimeout(function() {
+		defer.reject(123);
+	}, 1000);
+	return defer.promise;
+}
+
+var fn3 = function(val1,val2) {
+	console.log(val1, val2);	
+}
+
+fn1().then(fn2).fail(fn3);
+//Q.when(fn1(), fn2()).done(fn3);
