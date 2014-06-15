@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="%{{_lang_}}%">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title></title>
+</head>
+
+<!--require '../D' -->
+<script type="text/javascript">
+	require('sss', function(){
+		console.log(1111);
+	});
+</script>
+<script type="text/javascript">
+;define("./C",["require"],function (require){
+	//wewe
+})
+;define("./mod/G",["require","./E"],function (require) {
+    var E;
+    console.log(111);
+    return E = require('./E');
+  })
+;define("./E",["require"],function (require){
+ 	//var C = require('./../D');
+})
+;define("./main.tpl.html",["require","exports","module"],function(require){ return { render: function(locals){
+var $encodeHtml = function(str) {
+	return (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+}
+var buf = [];
+with (locals || {}) { (function(){ 
+buf.push('');if (user) {; buf.push('<h2>', $encodeHtml(user.name), '</h2><h2>',user.name,'</h2><h2>',user.name,'</h2><h2>',user.name,'</h2>');}; buf.push('' + (function(){var buf = [];
+buf.push('');if (user) {; buf.push('<h2>', $encodeHtml(user.name), '</h2>');}; buf.push('');
+return buf.join('');})() + ''); })();
+}
+return buf.join('');}}})
+;define(["require","./main.tpl.html","./mod/G","./C"],function (require){
+ 	//var tpl = require('./main.tpl.html');
+ 	//var E = require('./mod/E');
+ 	return {
+ 		tpl: require('./main.tpl.html'),
+ 		G: require('../mod/G'),
+ 		C: require('./C')
+ 	}
+})
+</script>
+</html>

@@ -2,18 +2,19 @@ var fs = require('fs');
 var path = require('path');
 var vm =  require('vm');
 var util = require('util');
+var cp = require('child_process');
 var utils = require('./lib/utils');
 var grunt = require('grunt');
 var commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg;
 var cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
 var fnwrap = ['(function(define){','})(define)'];
 var tplwrap = ['(function(define){define(function(require){', '});})(define)']
-//var tplwrap = ['(function(define.require){define(\"','\",function(require){','})})(define,require)'];
 var moduleCache = {};
 
 var requireMock = {
 	define: function (name, deps, callback) {
 		var _path = requireMock.path;
+		var _depath = '';
         //Allow for anonymous modules
         if (typeof name !== 'string') {
             //Adjust args appropriately
@@ -28,7 +29,7 @@ var requireMock = {
             deps = null;
         }
 
-        //If no name, and callback is a function, then figure out if it a
+        //If no name, and callback is a function, then figure out 
         //CommonJS thing with dependencies.
         if (!deps && utils._isFunction(callback)) {
             deps = [];
@@ -37,13 +38,17 @@ var requireMock = {
                     .toString()
                     .replace(commentRegExp, '')
                     .replace(cjsRequireRegExp, function (match, dep) {
-						if (!path.extname(dep)) {;
-							moduleCache[_path].deps.push({path: path.resolve(path.dirname(_path), dep) + '.js'});
+                    	if (/^\.\.\//.test(dep)) {
+							_depath = path.resolve(_path, dep);
 						} else {
-							moduleCache[_path].deps.push({path: path.resolve(path.dirname(_path), dep)});
+							_depath = path.resolve(path.dirname(_path), dep);
+						}
+						if (!path.extname(_depath)) {
+							moduleCache[_path].deps.push({path: _depath + '.js'});
+						} else {
+							moduleCache[_path].deps.push({path: _depath});
 						}
                     });
-                //moduleCache[_path].deps = (callback.length === 1 ? ['require'] : ['require', 'exports', 'module']).concat(moduleCache[_path].deps);
             }
         }
         if (path.extname(_path) === '.js') {
@@ -55,7 +60,7 @@ var requireMock = {
 function log() {
 	grunt.log.writeln(_joint(arguments));
 }
-function warn(msg) {
+function warn() {
 	grunt.log.warn(_joint(arguments));
 }
 
@@ -99,10 +104,8 @@ function _resolveSrcRequire(_path, opt) {
 			modPath += '.js';
 		}
 		if ($1 == 'require') {
-			//_resolveRequire(modPath, {encoding:opt.encoding,indeep:true});
 			moduleCache[_path].deps.push({path:modPath,indeep:true});
 		} else {
-			//_resolveRequire(modPath, {encoding:opt.encoding,indeep:false});
 			moduleCache[_path].deps.push({path:modPath,indeep:false});
 		}
 		return '';
@@ -112,21 +115,25 @@ function _resolveSrcRequire(_path, opt) {
 function _resolveRequire(_path, opt) {
 	opt = opt || {};
 	var encoding = opt.encoding ? opt.encoding: 'utf-8';
-	var content = fs.readFileSync(_path, {encoding: encoding});
+	var content = '';
+	if (!(path.extname(_path) == '.js' || /\.tpl\.html$/.test(_path) || /\.src\.html$/.test(_path))) {
+		return;
+	}
+	content = fs.readFileSync(_path, {encoding: encoding});
 	requireMock.path = _path;
 	if (path.extname(_path) == '.js') {
 		if(!moduleCache[_path]) {
-			moduleCache[_path] = {fn:function(){}, deps:[], indeep:opt.indeep};
+			moduleCache[_path] = {fn:function(){}, deps:[]};
 		}
 		content = _wrapMod(content);
-	} else if (/\.tpl\.html?$/.test(_path)) {
+	} else if (/\.tpl\.html$/.test(_path)) {
 		if (!moduleCache[_path]) {
-			moduleCache[_path] = {fn:'function(require){' + content + '}',deps:[]};
+			moduleCache[_path] = {fn:'function(require){}',deps:[]};
 		}
 		content = praseTpl(content, {filename:_path, compileDebug: false,_with:true, consumeEOL: true});
 		moduleCache[_path].fn = 'function(require){ return { render: function(locals){' + content + '}}}';
 		content = _wrapTpl(content);
-	} else if (/\.src\.html?$/.test(_path)) {
+	} else if (/\.src\.html$/.test(_path)) {
 		if (!moduleCache[_path]) {
 			moduleCache[_path] = {fn: content, deps: []};
 		}
@@ -136,24 +143,34 @@ function _resolveRequire(_path, opt) {
 	vm.runInNewContext(content, requireMock);
 }
 
-function fileScanner(path, encoding) {
+function _buildFile(_path, encoding) {
+	if (path.extname(_path) === '.coffee') {
+		cp.exec('coffee -c ' + _path, function(err, stdout, stderr) {
+			if (err) {
+				warn(err);
+			}
+		});
+	}
+}
+
+function scanFile(path, encoding, callback) {
 	var stats = fs.statSync(path);
 	if (stats.isDirectory()) {
 		var files = fs.readdirSync(path);
 		for(var i = files.length; i--;) {
-			fileScanner(path + '/' + files[i], encoding);
+			scanFile(path + '/' + files[i], encoding, callback);
 		}
 	} else {
-		_resolveRequire(path, encoding);
+		callback(path, encoding);
 	}
 }
 
-function rootScanner(root, encoding) {
+function scanRoot(root, encoding, callback) {
 	if (fs.existsSync(root)) {
 		var stats = fs.statSync(root);
 		if (stats.isDirectory()){
 			if (stats.isDirectory()) {
-				fileScanner(root, encoding);
+				scanFile(root, encoding, callback);
 			} else {
 				warn('root:%s isn\'t a directory', root);
 			}
@@ -165,17 +182,14 @@ function rootScanner(root, encoding) {
 
 function combineJs(encoding) {
 	for(var prop in moduleCache) {
-		if (moduleCache.hasOwnProperty(prop)) {
-			if (/\.src\.html?$/.test(prop)) {
-				var content = '';
-				_combineJs.trace = {};
-				_combineJs.trace[prop] = true;
-				for(var i = 0 ; i < moduleCache[prop].deps.length; i++) {
-					var mod = moduleCache[prop].deps[i];
-					content = _combineJs(mod.path, encoding, mod.indeep) + buildMainWrap(mod.path, moduleCache[mod.path].deps, moduleCache[mod.path].fn);
-					moduleCache[prop].buildContent = content;
-					console.log(content);
-				}
+		if (moduleCache.hasOwnProperty(prop)) {		
+			var content = '';
+			_combineJs.trace = {};
+			_combineJs.trace[prop] = true;
+			for(var i = 0 ; i < moduleCache[prop].deps.length; i++) {
+				var mod = moduleCache[prop].deps[i];
+				content = _combineJs(mod.path, encoding, !!mod.indeep) + buildMainWrap(mod.path, moduleCache[mod.path].deps, moduleCache[mod.path].fn);
+				moduleCache[prop].buildContent = content;
 			}
 		}
 	}
@@ -205,11 +219,14 @@ function buildMainWrap(prop, deps, fn, name) {
 	return '\n;define(' + (name ? '\"'+ name +'\",' : "") + '[' + (mod.fn.length === 1 ? ['\"require\"'] : ['\"require\"', '\"exports\"', '\"module\"']).concat(_deps) + '],' + fn.toString() + ')'; 
 }
 
-function _combineJs(path, encoding, indeep){
+function _combineJs(path, encoding, indeep) {
 	var deps = moduleCache[path].deps;
 	var content = '';
 	if (!deps) {
 		warn('---No This Module:%s---', path);
+		return '';
+	}
+	if (!indeep) {
 		return '';
 	}
 	for(var i = deps.length; i--;) {
@@ -219,12 +236,8 @@ function _combineJs(path, encoding, indeep){
 			_combineJs.trace[deps[i].path] = true;
 		}
 		content += buildDepWrap(path, deps[i].path, moduleCache[deps[i].path].fn);
-		if (indeep) {
-			content += _combineJs(deps[i].path, encoding, indeep);
-		} else {
-			return '';
-		}
-		
+		content += _combineJs(deps[i].path, encoding, true);
+	
 	}
 	return content;
 }
@@ -279,7 +292,7 @@ function praseTpl(str, options){
     , buf = ""
     , included = !!options.included
     , consumeEOL = !!options.consumeEOL
-    , encodeHtmlFn = '\nfunction $encodeHtml(str) {\n\treturn (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n}\n';
+    , encodeHtmlFn = '\nvar $encodeHtml = function(str) {\n\treturn (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n}\n';
 
   buf += 'var buf = [];';
   if (false !== options._with) buf += '\nwith (locals || {}) { (function(){ ';
@@ -365,18 +378,24 @@ function praseTpl(str, options){
 };
 
 function copyFiles(from, dest, encoding) {
-	for(var prop in moduleCache) {
+	var prop, _path, _dirname, _content; 
+	for(prop in moduleCache) {
 		if (moduleCache.hasOwnProperty(prop)) {
-			var _path = prop.replace(from, dest);
-			var dirname = path.dirname(_path);
-			if (!fs.existsSync(dirname)) {
-				fs.mkdirSync(path.dirname(_path));
+			_path = prop.replace(from, dest);
+			_dirname = path.dirname(_path);
+			if (!fs.existsSync(_dirname)) {
+				fs.mkdirSync(_dirname);
 			}
-			if (path.extname(prop) == '.js') {
-				fs.writeFileSync(_path, moduleCache[prop].buildContent, {encoding: 'utf-8'});
-			} else if (!/\.tpl\.html?$/.test(prop)) {
-				//fs
-			}
+			if (/\.src\.html$/.test(prop)) {
+				_content = fs.readFileSync(prop, encoding);	
+				//.* 无法匹配换行符 [\s\S]*可以匹配包括换行符内所有字符
+				_content = _content.replace(/<body[^>]*>([\s\S]*)<\/body>/, function(match, $1) {
+					return $1 + '<script type="text/javascript">' + moduleCache[prop].buildContent + '\n</script>';
+				});
+				fs.writeFileSync(_path, _content, {encoding: 'utf-8'});
+			} else if (/(-main|^main)\.js/.test(path.basename(prop))) {
+				fs.writeFileSync(_path, fs.readFileSync(prop, encoding), {encoding: 'utf-8'});
+			};
 		}
 	}
 }
@@ -396,7 +415,8 @@ module.exports = function(grunt) {
 	});
 
 	function scanAll(options) {
-		rootScanner(options.root, options.encoding);
+		scanRoot(options.root, options.encoding, _buildFile);
+		scanRoot(options.root, options.encoding, _resolveRequire);
 	}
 
 	function copyAll(options) {
