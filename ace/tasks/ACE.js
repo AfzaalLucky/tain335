@@ -116,13 +116,13 @@ function _resolveRequire(_path, opt) {
 	opt = opt || {};
 	var encoding = opt.encoding ? opt.encoding: 'utf-8';
 	var content = '';
-	if (!(path.extname(_path) == '.js' || /\.tpl\.html$/.test(_path) || /\.src\.html$/.test(_path))) {
+	if (!(path.extname(_path) == '.js'|| path.extname(_path) == '.css' || /\.tpl\.html$/.test(_path) || /\.src\.html$/.test(_path))) {
 		return;
 	}
 	content = fs.readFileSync(_path, {encoding: encoding});
 	requireMock.path = _path;
 	if (path.extname(_path) == '.js') {
-		if(!moduleCache[_path]) {
+		if (!moduleCache[_path]) {
 			moduleCache[_path] = {fn:function(){}, deps:[]};
 		}
 		content = _wrapMod(content);
@@ -131,7 +131,7 @@ function _resolveRequire(_path, opt) {
 			moduleCache[_path] = {fn:'function(require){}',deps:[]};
 		}
 		content = praseTpl(content, {filename:_path, compileDebug: false,_with:true, consumeEOL: true});
-		moduleCache[_path].fn = 'function(require){ return { render: function(locals){' + content + '}}}';
+		moduleCache[_path].fn = 'function(require){\n\treturn {\n\t\trender: function(locals) {\n' + content + '\n\t\t}\n\t}\n}';
 		content = _wrapTpl(content);
 	} else if (/\.src\.html$/.test(_path)) {
 		if (!moduleCache[_path]) {
@@ -139,17 +139,29 @@ function _resolveRequire(_path, opt) {
 		}
 		_resolveSrcRequire(_path, opt);
 		return;
+	} else {
+		if (!moduleCache[_path]) {
+			moduleCache[_path] = {fn: function(){}, deps:[]};
+		}
+		return;
 	}
 	vm.runInNewContext(content, requireMock);
 }
 
 function _buildFile(_path, encoding) {
-	if (path.extname(_path) === '.coffee') {
+	var ext = path.extname(_path);
+	if (ext === '.coffee') {
 		cp.exec('coffee -c ' + _path, function(err, stdout, stderr) {
 			if (err) {
 				warn(err);
 			}
 		});
+	} else if (ext === '.less') {
+		cp.exec('lessc ' + _path + ' > ' + _path.replace('.less', '.css'), function(err, stdout, stderr) {
+			if (err) {
+				warn(err);
+			}
+		})
 	}
 }
 
@@ -284,98 +296,109 @@ function resolveTplInclude(name, filename) {
 
 
 function praseTpl(str, options){
-  var options = options || {}
-    , open = options.open || exports.open || '<%'
-    , close = options.close || exports.close || '%>'
-    , filename = options.filename
-    , compileDebug = options.compileDebug !== false
-    , buf = ""
-    , included = !!options.included
-    , consumeEOL = !!options.consumeEOL
-    , encodeHtmlFn = '\nvar $encodeHtml = function(str) {\n\treturn (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n}\n';
-
-  buf += 'var buf = [];';
-  if (false !== options._with) buf += '\nwith (locals || {}) { (function(){ ';
-  buf += '\nbuf.push(\'';
-  var lineno = 1;
-  for (var i = 0, len = str.length; i < len; ++i) {
-    var stri = str[i];
-    if (str.slice(i, open.length + i) == open) {
-      i += open.length
-      var prefix, postfix;
-      switch (str[i]) {
-        case '=':
-        	if (str[i+1] == '=') {
-        		prefix = "', $encodeHtml(";
-		        postfix = "), '";
-		        i += 2;
-        	} else {
-        		prefix = "',";
-		        postfix = ",'";
-		        ++i;
-        	}        
-	        break;
-        default:
-          prefix = "');";
-          postfix = "; buf.push('";
-          break;
-      }
-      var end = str.indexOf(close, i)
-        , js = str.substring(i, end)
-        , start = i
-        , include = null
-        , n = 0;
-      if (0 == js.trim().indexOf('include')) {
-        var name = js.trim().slice(7).trim();
-        if (!filename) throw new Error('filename option is required for includes');
-        var path = resolveTplInclude(name, filename);
-        include = fs.readFileSync(path, 'utf8');
-        include = arguments.callee(include, { filename: path, _with: false, open: open, close: close, compileDebug: compileDebug, consumeEOL: consumeEOL,included: true});
-        if(!moduleCache[path]) {
-			moduleCache[path] = {fn:'function(require){ return { render: function(locals){' + include + '}}',deps:[]};
-			requireMock.path = path;
-        	vm.runInNewContext( _wrapTpl(include), requireMock);
-		}
-        requireMock.path = filename;
-        buf += "' + (function(){" + include + "})() + '";
-        js = '';
-      }
-      while (~(n = js.indexOf("\n", n))) n++, lineno++;
-      if (js) {
-        js = utils._trim(js);
-        buf += prefix;
-        buf += js;
-        buf += postfix;
-      }
-      i += end - start + close.length - 1;
-
-    } else if (stri == "\\") {
-      buf += "\\\\";
-    } else if (stri == "'") {
-      buf += "\\'";
-    } else if (stri == "\r") {
-      // ignore
-    } else if (stri == "\n") {
-      if (!consumeEOL) {
-        buf += "\\n";
-        lineno++;
-      }
-    } else if (stri == " ") {
-      // ignore
-    } else if (stri == "\t"){
-      // ignore
-    } else {
-    	buf += stri;
-    }
-  }
-	if (false !== options._with) buf += "'); })();\n}";
+	var options = options || {}
+	, open = options.open || exports.open || '<%'
+	, close = options.close || exports.close || '%>'
+	, filename = options.filename
+	, compileDebug = options.compileDebug !== false
+	, buf = ""
+	, count = options.count || 0
+	, included = !!options.included
+	, consumeEOL = !!options.consumeEOL
+	, encodeHtmlFn = _formatTpl('\t\t\t', count) + 'var $encodeHtml = function(str) {\n' + _formatTpl('\t\t\t\t', count) + 'return (str + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/`/g, "&#96;").replace(/\'/g, "&#39;").replace(/"/g, "&quot;");\n' + _formatTpl('\t\t\t', count) +'}\n';
+  	buf += _formatTpl('\t\t\t', count, count > 0 ? '\t\t\t' : '') + 'var buf = [];';
+  	if (false !== options._with) buf += '\n' + _formatTpl('\t\t\t', count) + 'with (locals || {}) {\n' + _formatTpl('\t\t\t\t', count) + '(function(){\t';
+  	buf += '\n' + _formatTpl('\t\t\t\t\t', count, count > 0 ? '\t' : '') + 'buf.push(\'';
+  	var lineno = 1;
+  	for (var i = 0, len = str.length; i < len; ++i) {
+    	var stri = str[i];
+    	if (str.slice(i, open.length + i) == open) {
+	      	i += open.length
+	      	var prefix, postfix;
+	      	switch (str[i]) {
+	        	case '=':
+	        		if (str[i+1] == '=') {
+	        			prefix = "', $encodeHtml(";
+			        	postfix = "), '";
+			        	i += 2;
+	        		} else {
+	        			prefix = "',";
+			        	postfix = ",'";
+			        	++i;
+	        		}        
+		        	break;
+	        	default:
+	          		prefix = "');";
+	          		postfix = "; buf.push('";
+	          		break;
+	      	}
+	      	var end = str.indexOf(close, i)
+	        , js = str.substring(i, end)
+	        , start = i
+	        , include = null
+	        , n = 0;
+	      	if (0 == js.trim().indexOf('include')) {
+	        	var name = js.trim().slice(7).trim();
+	        	if (!filename) throw new Error('filename option is required for includes');
+	        	var path = resolveTplInclude(name, filename);
+	        	include = fs.readFileSync(path, 'utf8');
+	        	include = arguments.callee(include, {filename: path, _with: false, open: open, close: close, compileDebug: compileDebug, consumeEOL: consumeEOL, included: true, count: count + 1});
+	        	if(!moduleCache[path]) {
+					moduleCache[path] = {fn:'function(require){ return { render: function(locals){' + include + '}}',deps:[]};
+					requireMock.path = path;
+	        		vm.runInNewContext( _wrapTpl(include), requireMock);
+				}
+	        	requireMock.path = filename;
+	        	buf += "' + (function(){\n" + include + '\n' + _formatTpl('\t\t\t\t\t\t', count) + "})() + '";
+	        	js = '';
+	      	}
+	      	while (~(n = js.indexOf("\n", n))) n++, lineno++;
+	      	if (js) {
+	        	js = utils._trim(js);
+	        	buf += prefix;
+	        	buf += js;
+	        	buf += postfix;
+	      	}
+	      	i += end - start + close.length - 1;
+    	} else if (stri == "\\") {
+      		buf += "\\\\";
+    	} else if (stri == "'") {
+      		buf += "\\'";
+    	} else if (stri == "\r") {
+      		// ignore
+    	} else if (stri == "\n") {
+      		if (!consumeEOL) {
+        		buf += "\\n";
+        		lineno++;
+      		}
+    	} else if (stri == " ") {
+      		// ignore
+    	} else if (stri == "\t"){
+      		// ignore
+    	} else {
+    		buf += stri;
+    	}
+  	}
+	if (false !== options._with) buf += "');\n" + _formatTpl('\t\t\t\t', count) + '})();\n\t\t\t}';
 	else buf += "');";
 	if (!included) {
 		buf = encodeHtmlFn + buf;
 	}
-	buf += "\nreturn buf.join('');"
+	buf += '\n' + _formatTpl('\t\t\t', count, count > 0 ? '\t\t\t' : '') + "return buf.join('');"
 	return buf;
 };
+
+function _formatTpl(tabs, count, adds) {
+	if (count) {
+		for(var i = 0; i < count; i++) {
+			tabs += '\t'
+		}
+	}
+	if (adds) {
+		tabs += adds;
+	}
+	return tabs;
+}
 
 function copyFiles(from, dest, encoding) {
 	var prop, _path, _dirname, _content; 
@@ -393,7 +416,7 @@ function copyFiles(from, dest, encoding) {
 					return $1 + '<script type="text/javascript">' + moduleCache[prop].buildContent + '\n</script>';
 				});
 				fs.writeFileSync(_path, _content, {encoding: 'utf-8'});
-			} else if (/(-main|^main)\.js/.test(path.basename(prop))) {
+			} else if (/(-main|^main)\.(js|css)$/.test(path.basename(prop))) {
 				fs.writeFileSync(_path, fs.readFileSync(prop, encoding), {encoding: 'utf-8'});
 			};
 		}
